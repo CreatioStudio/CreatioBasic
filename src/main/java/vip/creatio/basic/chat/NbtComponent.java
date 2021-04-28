@@ -1,8 +1,8 @@
 package vip.creatio.basic.chat;
 
-import vip.creatio.basic.util.BukkitUtil;
 import net.minecraft.server.ChatComponentNBT;
 import org.bukkit.NamespacedKey;
+import vip.creatio.basic.util.NMS;
 
 public abstract class NbtComponent extends Component {
 
@@ -81,7 +81,7 @@ public abstract class NbtComponent extends Component {
         }
 
         public Storage(String nbtPath, boolean interpreting, NamespacedKey namespace) {
-            super(new ChatComponentNBT.c(nbtPath, interpreting, BukkitUtil.toNms(namespace)));
+            super(new ChatComponentNBT.c(nbtPath, interpreting, NMS.toNms(namespace)));
         }
 
         public Storage(String nbtPath, NamespacedKey namespace) {
@@ -89,7 +89,7 @@ public abstract class NbtComponent extends Component {
         }
 
         public NamespacedKey getKey() {
-            return BukkitUtil.toBukkit(((ChatComponentNBT.c) component).j());
+            return NMS.toBukkit(((ChatComponentNBT.c) component).j());
         }
 
         @Override

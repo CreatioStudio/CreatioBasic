@@ -76,7 +76,7 @@ implements NBTTag<NBTTagCompound> {
     public Set<Entry<String, NBTTag<?>>> entrySet() {
         Map<String, NBTBase> map = ENTRIES.invoke(compound);
         Map<String, NBTTag<?>> newMap = new HashMap<>();
-        map.forEach((s, b) -> newMap.put(s, wrap(b)));
+        map.forEach((s, b) -> newMap.put(s, NBTTag.wrap(b)));
 
         return newMap.entrySet();
     }
@@ -288,7 +288,7 @@ implements NBTTag<NBTTagCompound> {
     }
     @Override
     public @Nullable NBTTag<?> get(Object key) {                                //Get NBTBase of any element
-        return wrap(compound.get((String) key));
+        return NBTTag.wrap(compound.get((String) key));
     }
 
     @Override

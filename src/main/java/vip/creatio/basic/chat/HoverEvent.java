@@ -2,7 +2,6 @@ package vip.creatio.basic.chat;
 
 import com.google.gson.JsonElement;
 import vip.creatio.basic.tools.Wrapper;
-import vip.creatio.basic.util.BukkitUtil;
 import vip.creatio.basic.util.EntityUtil;
 import vip.creatio.basic.util.ItemUtil;
 import vip.creatio.basic.nbt.CompoundTag;
@@ -19,6 +18,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.util.NMS;
 
 import java.util.UUID;
 
@@ -139,7 +139,7 @@ public class HoverEvent implements Wrapper<ChatHoverable> {
 
         ItemStackInfo(ChatHoverable.c info) {
             this.info = info;
-            this.mat = ItemUtil.toBukkit(ITEM_VAR.get(info));
+            this.mat = NMS.toBukkit(ITEM_VAR.get(info));
             this.count = COUNT_VAR.get(info);
             this.tag = new CompoundTag(TAG_VAR.get(info));
         }
@@ -148,14 +148,14 @@ public class HoverEvent implements Wrapper<ChatHoverable> {
                 Reflection.constructor(ChatHoverable.c.class, Item.class, int.class, NBTTagCompound.class);
 
         public ItemStackInfo(Material mat, int count, @Nullable CompoundTag tag) {
-            this.info = CONST.invoke(ItemUtil.toNms(mat), count, tag == null ? null : tag.unwrap());
+            this.info = CONST.invoke(NMS.toNms(mat), count, tag == null ? null : tag.unwrap());
             this.mat = mat;
             this.count = count;
             this.tag = tag;
         }
 
         public ItemStackInfo(ItemStack itemStack) {
-            this.info = new ChatHoverable.c(ItemUtil.toNms(itemStack));
+            this.info = new ChatHoverable.c(NMS.toNms(itemStack));
             this.mat = itemStack.getType();
             this.count = itemStack.getAmount();
             this.tag = ItemUtil.getTag(itemStack);
@@ -220,13 +220,13 @@ public class HoverEvent implements Wrapper<ChatHoverable> {
 
         EntityTooltipInfo(ChatHoverable.b info) {
             this.info = info;
-            this.type = BukkitUtil.toBukkitEntityType(info.a);
+            this.type = NMS.toBukkit(info.a);
             this.uuid = info.b;
             this.component = Component.wrap(info.c);
         }
 
         public EntityTooltipInfo(EntityType type, UUID uuid, @Nullable Component component) {
-            this.info = new ChatHoverable.b(BukkitUtil.toNmsEntityType(type), uuid, component == null ? null : component.unwrap());
+            this.info = new ChatHoverable.b(NMS.toNms(type), uuid, component == null ? null : component.unwrap());
             this.type = type;
             this.uuid = uuid;
             this.component = component;
@@ -236,7 +236,7 @@ public class HoverEvent implements Wrapper<ChatHoverable> {
             this.component = EntityUtil.getDisplayName(entity);
             this.uuid = entity.getUniqueId();
             this.type = entity.getType();
-            this.info = new ChatHoverable.b(BukkitUtil.toNmsEntityType(type), uuid, component.unwrap());
+            this.info = new ChatHoverable.b(NMS.toNms(type), uuid, component.unwrap());
         }
 
         @Nullable

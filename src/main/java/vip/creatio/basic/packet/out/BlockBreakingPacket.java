@@ -3,12 +3,12 @@ package vip.creatio.basic.packet.out;
 import net.minecraft.server.BlockPosition;
 import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.packet.VirtualEntity;
-import vip.creatio.basic.util.BlockUtil;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import net.minecraft.server.PacketPlayOutBlockBreakAnimation;
 import org.bukkit.block.Block;
-import vip.creatio.basic.util.Vec3i;
+import vip.creatio.basic.util.NMS;
+import vip.creatio.basic.math.Vec3i;
 
 public class BlockBreakingPacket extends Packet<PacketPlayOutBlockBreakAnimation> {
 
@@ -29,7 +29,7 @@ public class BlockBreakingPacket extends Packet<PacketPlayOutBlockBreakAnimation
     }
 
     public BlockBreakingPacket(int eid, Block block, int process) {
-        super(new PacketPlayOutBlockBreakAnimation(eid, BlockUtil.toNmsPos(block), process));
+        super(new PacketPlayOutBlockBreakAnimation(eid, NMS.toNmsPos(block), process));
         this.eid = eid;
         this.block = new Vec3i(block.getX(), block.getY(), block.getZ());
         this.process = process;

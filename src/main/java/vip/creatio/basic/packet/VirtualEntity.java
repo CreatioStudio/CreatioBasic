@@ -1,7 +1,6 @@
 package vip.creatio.basic.packet;
 
 import vip.creatio.basic.tools.Wrapper;
-import vip.creatio.basic.util.EntityUtil;
 import net.minecraft.server.DataWatcher;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -25,6 +24,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.util.NMS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -466,7 +466,7 @@ public class VirtualEntity<T extends Entity> implements Entity, Wrapper<T> {
     }
 
     public net.minecraft.server.Entity toNms() {
-        return EntityUtil.toNms(original);
+        return NMS.toNms(original);
     }
 
     @Override

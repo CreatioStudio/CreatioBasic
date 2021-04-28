@@ -2,7 +2,7 @@ package vip.creatio.basic.packet.particle;
 
 import vip.creatio.basic.tools.Wrapper;
 import org.bukkit.Particle;
-import vip.creatio.basic.util.BukkitUtil;
+import vip.creatio.basic.util.NMS;
 
 public abstract class ParticleParam implements Wrapper<net.minecraft.server.ParticleParam> {
 
@@ -20,7 +20,7 @@ public abstract class ParticleParam implements Wrapper<net.minecraft.server.Part
 
     public static ParticleParam wrap(net.minecraft.server.ParticleParam nms) {
         if (nms instanceof net.minecraft.server.ParticleType) {
-            return new ParticleType(BukkitUtil.toBukkit(nms));
+            return new ParticleType(NMS.toBukkit(nms));
         } else if (nms instanceof net.minecraft.server.ParticleParamBlock) {
             return new ParticleParamBlock((net.minecraft.server.ParticleParamBlock) nms);
         } else if (nms instanceof net.minecraft.server.ParticleParamItem) {

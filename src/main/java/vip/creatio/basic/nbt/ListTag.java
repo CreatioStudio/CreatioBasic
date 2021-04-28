@@ -108,17 +108,17 @@ extends CollectionTag<W> {
 
     @Override
     public W remove(int index) {
-        return wrap(list.remove(index));
+        return NBTTag.wrap(list.remove(index));
     }
 
     @Override
     public W set(int index, W item) {
-        return wrap(list.set(index, item.unwrap()));
+        return NBTTag.wrap(list.set(index, item.unwrap()));
     }
 
     @Override
     public W get(int index) {
-        return wrap(list.get(index));
+        return NBTTag.wrap(list.get(index));
     }
 
     public static ListTag<StringTag> toList(Collection<Component> c) {

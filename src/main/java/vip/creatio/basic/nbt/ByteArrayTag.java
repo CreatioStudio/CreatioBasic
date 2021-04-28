@@ -44,17 +44,17 @@ extends CollectionTag<ByteTag> {
 
     @Override
     public ByteTag remove(int index) {
-        return wrap(list.remove(index));
+        return NBTTag.wrap(list.remove(index));
     }
 
     @Override
     public ByteTag set(int index, ByteTag item) {
-        return wrap(list.set(index, item.unwrap()));
+        return NBTTag.wrap(list.set(index, item.unwrap()));
     }
 
     @Override
     public ByteTag get(int index) {
-        return wrap(list.get(index));
+        return NBTTag.wrap(list.get(index));
     }
 
     @Override

@@ -14,7 +14,7 @@ public final class PlayerUtil {
     }
 
     public static PlayerConnection getConnection(Player plr) {
-        return EntityUtil.toNms(plr).playerConnection;
+        return NMS.toNms(plr).playerConnection;
     }
 
     public static Channel getChannel(Player plr) {

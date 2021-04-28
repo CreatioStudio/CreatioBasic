@@ -4,9 +4,9 @@ import net.minecraft.server.EnumDifficulty;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.basic.util.BukkitUtil;
 import net.minecraft.server.PacketPlayOutServerDifficulty;
 import org.bukkit.Difficulty;
+import vip.creatio.basic.util.NMS;
 
 public class ServerDifficultyPacket extends Packet<PacketPlayOutServerDifficulty> {
 
@@ -18,7 +18,7 @@ public class ServerDifficultyPacket extends Packet<PacketPlayOutServerDifficulty
 
     ServerDifficultyPacket(PacketPlayOutServerDifficulty nms) {
         super(nms);
-        this.difficulty = BukkitUtil.toBukkit(DIFFICULTY.get(nms));
+        this.difficulty = NMS.toBukkit(DIFFICULTY.get(nms));
         this.locked = LOCKED.getBoolean(nms);
     }
 
@@ -31,7 +31,7 @@ public class ServerDifficultyPacket extends Packet<PacketPlayOutServerDifficulty
      * @param locked is difficulty locked in options(seems to be useless).
      */
     public ServerDifficultyPacket(Difficulty diff, boolean locked) {
-        super(new PacketPlayOutServerDifficulty(BukkitUtil.toNms(diff), locked));
+        super(new PacketPlayOutServerDifficulty(NMS.toNms(diff), locked));
         this.difficulty = diff;
         this.locked = locked;
     }

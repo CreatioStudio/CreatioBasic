@@ -1,6 +1,5 @@
 package vip.creatio.basic.util;
 
-import vip.creatio.basic.packet.VirtualEntity;
 import vip.creatio.basic.util.damageSource.DmgSource;
 import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.nbt.CompoundTag;
@@ -40,27 +39,27 @@ public final class EntityUtil {
     public static final EnumSet<GameMode> INVULNERABLE_MODE = EnumSet.of(GameMode.CREATIVE, GameMode.SPECTATOR);
 
     public static boolean isHandRaised(@NotNull LivingEntity entity) {
-        return toNms(entity).isHandRaised();
+        return NMS.toNms(entity).isHandRaised();
     }
 
     public static EnumHand getRaisedHand(@NotNull LivingEntity entity) {
-        return EnumHand.convert(toNms(entity).getRaisedHand());
+        return EnumHand.convert(NMS.toNms(entity).getRaisedHand());
     }
 
     public static boolean isBlocking(@NotNull LivingEntity entity) {
-        return toNms(entity).isBlocking();
+        return NMS.toNms(entity).isBlocking();
     }
 
     public static ItemStack getActiveItem(@NotNull LivingEntity entity) {
-        return ItemUtil.toBukkit(toNms(entity).getActiveItem());
+        return NMS.toBukkit(NMS.toNms(entity).getActiveItem());
     }
 
     public static void clearActiveItem(@NotNull LivingEntity entity) {
-        toNms(entity).clearActiveItem();
+        NMS.toNms(entity).clearActiveItem();
     }
 
     public static void setEntityId(Entity entity, int eid) {
-        setEntityId(toNms(entity), eid);
+        setEntityId(NMS.toNms(entity), eid);
     }
 
     public static void setEntityId(net.minecraft.server.Entity entity, int eid) {
@@ -68,7 +67,7 @@ public final class EntityUtil {
     }
 
     public static void setUniqueId(Entity entity, UUID uuid) {
-        setUniqueId(toNms(entity), uuid);
+        setUniqueId(NMS.toNms(entity), uuid);
     }
 
     public static void setUniqueId(net.minecraft.server.Entity entity, UUID uuid) {
@@ -76,26 +75,26 @@ public final class EntityUtil {
     }
 
     public static void setCustomName(Entity entity, Component name) {
-        toNms(entity).setCustomName(name.unwrap());
+        NMS.toNms(entity).setCustomName(name.unwrap());
     }
 
     public static @Nullable Component getCustomName(Entity entity) {
-        return Component.wrap(toNms(entity).getCustomName());
+        return Component.wrap(NMS.toNms(entity).getCustomName());
     }
 
     public static Component getDisplayName(Entity entity) {
-        return Component.wrap(toNms(entity).getDisplayName());
+        return Component.wrap(NMS.toNms(entity).getDisplayName());
     }
 
     /** Changing this object will not affect entity's data */
     public static CompoundTag getNbtTag(Entity entity) {
         CompoundTag tag = new CompoundTag();
-        toNms(entity).save(tag.unwrap());
+        NMS.toNms(entity).save(tag.unwrap());
         return tag;
     }
 
     public static void setNbtTag(Entity entity, CompoundTag tag) {
-        toNms(entity).load(tag.unwrap());
+        NMS.toNms(entity).load(tag.unwrap());
     }
 
 
@@ -103,33 +102,8 @@ public final class EntityUtil {
         ((EntityLiving) entity).releaseActiveItem();
     }
 
-    public static net.minecraft.server.Entity toNms(@NotNull Entity entity) {
-        if (entity instanceof VirtualEntity) return ((VirtualEntity<?>) entity).toNms();
-        return ((CraftEntity) entity).getHandle();
-    }
-
-    public static EntityLiving toNms(@NotNull LivingEntity entity) {
-        return (EntityLiving) toNms((Entity) entity);
-    }
-
-    public static EntityHuman toNms(@NotNull HumanEntity entity) {
-        return (EntityHuman) toNms((Entity) entity);
-    }
-
-    public static EntityPlayer toNms(@NotNull Player player) {
-        return (EntityPlayer) toNms((Entity) player);
-    }
-
-    public static Entity toBukkit(net.minecraft.server.Entity entity) {
-        return entity.getBukkitEntity();
-    }
-
-    public static LivingEntity toBukkit(EntityLiving entity) {
-        return (LivingEntity) entity.getBukkitEntity();
-    }
-
     public static Vector getViewVector(@NotNull Entity entity, float f) {
-        net.minecraft.server.Entity nms = toNms(entity);
+        net.minecraft.server.Entity nms = NMS.toNms(entity);
         return calcViewVector(nms.g(f) /* getViewPitch */, nms.h(f) /* getViewYaw */);
     }
 
@@ -145,7 +119,7 @@ public final class EntityUtil {
 
     private static final Var<Random> RANDOM = Reflection.field(net.minecraft.server.Entity.class, "random");
     public static Random getRandom(@NotNull LivingEntity entity) {
-        return RANDOM.get(toNms(entity));
+        return RANDOM.get(NMS.toNms(entity));
     }
 
     public static EntityEffect getArmorBreakEffect(byte slot) {
@@ -220,88 +194,88 @@ public final class EntityUtil {
 
     public static void shieldBlock(LivingEntity self, LivingEntity entity) {
         Vector vec = entity.getLocation().subtract(self.getLocation()).toVector();
-        toNms(self).a(0.5F, vec.getX(), vec.getZ());
+        NMS.toNms(self).a(0.5F, vec.getX(), vec.getZ());
     }
 
     public static void resetAttackCooldown(Player player) {
-        ((EntityHuman) toNms(player)).resetAttackCooldown();
+        ((EntityHuman) NMS.toNms(player)).resetAttackCooldown();
     }
 
     public static void knockback(LivingEntity entity, float k, double xMot, double yMot) {
-        toNms(entity).a /*knockback*/ (k, xMot, yMot);
+        NMS.toNms(entity).a /*knockback*/ (k, xMot, yMot);
     }
 
     public static void wakeup(LivingEntity entity) {
-        toNms(entity).entityWakeup();
+        NMS.toNms(entity).entityWakeup();
     }
 
     public static float getNoActionTime(LivingEntity entity) {
-        return toNms(entity).av;
+        return NMS.toNms(entity).av;
     }
 
     public static void setNoActionTime(LivingEntity entity, float time) {
-        toNms(entity).av = time;
+        NMS.toNms(entity).av = time;
     }
 
     public static void setHurtTicks(LivingEntity entity, int ticks) {
-        toNms(entity).hurtTicks = ticks;
+        NMS.toNms(entity).hurtTicks = ticks;
     }
 
     public static LivingEntity getLastDamager(LivingEntity entity) {
-        net.minecraft.server.EntityLiving e = toNms(entity).getLastDamager();
-        return e == null ? null : toBukkit(e);
+        net.minecraft.server.EntityLiving e = NMS.toNms(entity).getLastDamager();
+        return e == null ? null : NMS.toBukkit(e);
     }
 
     public static void setLastDamager(LivingEntity entity, LivingEntity damager) {
-        toNms(entity).setLastDamager(toNms(damager));
+        NMS.toNms(entity).setLastDamager(NMS.toNms(damager));
     }
 
     private static final Var<Integer> LAST_DMG_BY_PLAYER = Reflection.field(EntityLiving.class, "lastDamageByPlayerTime");
     private static int getLastDamageByPlayerTime(LivingEntity entity) {
-        return LAST_DMG_BY_PLAYER.getInt(toNms(entity));
+        return LAST_DMG_BY_PLAYER.getInt(NMS.toNms(entity));
     }
 
     private static void setLastDamageByPlayerTime(LivingEntity entity, int tick) {
-        LAST_DMG_BY_PLAYER.setInt(toNms(entity), tick);
+        LAST_DMG_BY_PLAYER.setInt(NMS.toNms(entity), tick);
     }
 
     public static void setKiller(LivingEntity entity, Player killer) {
-        toNms(entity).killer = toNms(killer);
+        NMS.toNms(entity).killer = NMS.toNms(killer);
     }
 
     /** Signals that entity velocity should be changed */
     private static final Func<Void> VELOCITY_CHANGED = Reflection.method(EntityLiving.class, "velocityChanged");
     public static void velocityChanged(LivingEntity entity) {
-        VELOCITY_CHANGED.invoke(toNms(entity));
+        VELOCITY_CHANGED.invoke(NMS.toNms(entity));
     }
 
     public static float getYaw(Entity entity) {
-        return toNms(entity).yaw;
+        return NMS.toNms(entity).yaw;
     }
 
     public static void setYaw(Entity entity, float yaw) {
-        toNms(entity).yaw = yaw;
+        NMS.toNms(entity).yaw = yaw;
     }
 
     public static float getPitch(Entity entity) {
-        return toNms(entity).pitch;
+        return NMS.toNms(entity).pitch;
     }
 
     public static void setPitch(Entity entity, float pitch) {
-        toNms(entity).pitch = pitch;
+        NMS.toNms(entity).pitch = pitch;
     }
 
     public static void setMot(Entity entity, double x, double y, double z) {
-        toNms(entity).setMot(x, y, z);
+        NMS.toNms(entity).setMot(x, y, z);
     }
 
     public static void setMot(Entity entity, Vector mot) {
-        toNms(entity).setMot(BukkitUtil.toNms(mot));
+        NMS.toNms(entity).setMot(NMS.toNms(mot));
     }
 
     public static void setLoc(Entity entity, double x, double y, double z) {
-        net.minecraft.server.Entity e = toNms(entity);
-        toNms(entity).setPositionRotation(x, y, z, e.yaw, e.pitch);
+        net.minecraft.server.Entity e = NMS.toNms(entity);
+        NMS.toNms(entity).setPositionRotation(x, y, z, e.yaw, e.pitch);
     }
 
     public static void setLoc(Entity entity, Vector vec) {
@@ -309,12 +283,12 @@ public final class EntityUtil {
     }
 
     public static void addLoc(Entity entity, double dx, double dy, double dz) {
-        toNms(entity).getPositionVector().add(dx, dy, dz);
+        NMS.toNms(entity).getPositionVector().add(dx, dy, dz);
     }
 
     public static void addLoc(Entity entity, Vector vec) {
-        net.minecraft.server.Entity e = toNms(entity);
-        toNms(entity).setPositionRotation(e.locX() + vec.getX(), e.locY() + vec.getY(), e.locZ() + vec.getZ(),
+        net.minecraft.server.Entity e = NMS.toNms(entity);
+        NMS.toNms(entity).setPositionRotation(e.locX() + vec.getX(), e.locY() + vec.getY(), e.locZ() + vec.getZ(),
                 e.yaw, e.pitch);
     }
 
@@ -324,35 +298,35 @@ public final class EntityUtil {
     }
 
     public static void removeAllEffects(LivingEntity entity) {
-        toNms(entity).removeAllEffects();
+        NMS.toNms(entity).removeAllEffects();
     }
 
     private static final Func<SoundEffect> GET_SOUND_DEATH = Reflection.method(EntityLiving.class, "getSoundDeath");
     public static @Nullable Sound getDeathSound(LivingEntity entity) {
-        SoundEffect eff = GET_SOUND_DEATH.invoke(toNms(entity));
-        return eff == null ? null : BukkitUtil.toBukkit(eff);
+        SoundEffect eff = GET_SOUND_DEATH.invoke(NMS.toNms(entity));
+        return eff == null ? null : NMS.toBukkit(eff);
     }
 
     private static final Func<SoundEffect> GET_SOUND_HURT = Reflection.method(EntityLiving.class, "getSoundHurt", DamageSource.class);
     public static @Nullable Sound getHurtSound(LivingEntity entity, DmgSource source) {
-        SoundEffect eff = GET_SOUND_HURT.invoke(toNms(entity), source.unwrap());
-        return eff == null ? null : BukkitUtil.toBukkit(eff);
+        SoundEffect eff = GET_SOUND_HURT.invoke(NMS.toNms(entity), source.unwrap());
+        return eff == null ? null : NMS.toBukkit(eff);
     }
 
     private static final Func<SoundEffect> GET_SOUND_FALL = Reflection.method(EntityLiving.class, "getSoundFall", int.class);
     public static @Nullable Sound getFallSound(LivingEntity entity, int height) {
-        SoundEffect eff = GET_SOUND_FALL.invoke(toNms(entity), height);
-        return eff == null ? null : BukkitUtil.toBukkit(eff);
+        SoundEffect eff = GET_SOUND_FALL.invoke(NMS.toNms(entity), height);
+        return eff == null ? null : NMS.toBukkit(eff);
     }
 
     private static final Func<Float> GET_SOUND_VOLUME = Reflection.method(EntityLiving.class, "getSoundVolume");
     public static float getSoundVolume(LivingEntity entity) {
-        return GET_SOUND_VOLUME.invoke(toNms(entity));
+        return GET_SOUND_VOLUME.invoke(NMS.toNms(entity));
     }
 
     private static final Func<Float> GET_SOUND_PITCH = Reflection.method(EntityLiving.class, "dH");
     public static float getSoundPitch(LivingEntity entity) {
-        return GET_SOUND_PITCH.invoke(toNms(entity));
+        return GET_SOUND_PITCH.invoke(NMS.toNms(entity));
     }
 
     public static void playHurtSound(LivingEntity entity) {
@@ -421,7 +395,7 @@ public final class EntityUtil {
 
             if ((float) self.getNoDamageTicks() > (float) self.getMaximumNoDamageTicks() / 2.0F) { // CraftBukkit - restore use of maxNoDamageTicks
                 if (amount <= self.getLastDamage()) {
-                    toNms(self).forceExplosionKnockback = true; // CraftBukkit - SPIGOT-949 - for vanilla consistency, cooldown does not prevent explosion knockback
+                    NMS.toNms(self).forceExplosionKnockback = true; // CraftBukkit - SPIGOT-949 - for vanilla consistency, cooldown does not prevent explosion knockback
                     return false;
                 }
 
@@ -436,11 +410,11 @@ public final class EntityUtil {
             if (self instanceof Animals) {
                 ((Animals) self).setLoveModeTicks(0);
                 if (self instanceof Tameable) {
-                    ((EntityTameableAnimal) toNms(self)).setWillSit(false);
+                    ((EntityTameableAnimal) NMS.toNms(self)).setWillSit(false);
                 }
             }
 
-            toNms(self).ap = 0.0F;
+            NMS.toNms(self).ap = 0.0F;
 
             if (attacker != null) {
                 if (attacker instanceof LivingEntity)
@@ -480,10 +454,10 @@ public final class EntityUtil {
                         d0 = (Math.random() - Math.random()) * 0.01D;
                     }
 
-                    toNms(self).ap = (float) (Math.toDegrees(Mth.atan2(d1, d0)) - getYaw(self));
+                    NMS.toNms(self).ap = (float) (Math.toDegrees(Mth.atan2(d1, d0)) - getYaw(self));
                     knockback(self, 0.4F, d0, d1);
                 } else {
-                    toNms(self).ap = (float) ((int) (Math.random() * 2.0D) * 180);
+                    NMS.toNms(self).ap = (float) ((int) (Math.random() * 2.0D) * 180);
                 }
             }
 
@@ -530,7 +504,7 @@ public final class EntityUtil {
     }
 
     public static int getKnockbackBonus(LivingEntity entity) {
-        return EnchantmentManager.b /* knockbackBonus */ (toNms(entity));
+        return EnchantmentManager.b /* knockbackBonus */ (NMS.toNms(entity));
     }
 
     @Nullable
@@ -540,12 +514,12 @@ public final class EntityUtil {
 
     @Nullable
     public static <T extends net.minecraft.server.Entity> T create(org.bukkit.World world, EntityTypes<T> types) {
-        return types.a(BukkitUtil.toNms(world));
+        return types.a(NMS.toNms(world));
     }
 
     public static Entity create(org.bukkit.World world, EntityType type) {
         return CraftEntity.getEntity((CraftServer) Bukkit.getServer(),
-                create(world, BukkitUtil.toNmsEntityType(type)));
+                create(world, NMS.toNms(type)));
     }
 
     public static @Nullable Entity create(org.bukkit.World world,
@@ -553,12 +527,12 @@ public final class EntityUtil {
                                           @Nullable Component name,
                                           Location loc,
                                           EntityType type) {
-        net.minecraft.server.Entity nms = BukkitUtil.toNmsEntityType(type).createCreature(
-                BukkitUtil.toNms(world),
+        net.minecraft.server.Entity nms = NMS.toNms(type).createCreature(
+                NMS.toNms(world),
                 tag == null ? null : new CompoundTag().put("EntityTag", new CompoundTag(tag)).unwrap(),
                 name == null ? null : name.unwrap(),
                 null,
-                BlockUtil.toNmsPos(loc.getBlock()),
+                NMS.toNmsPos(loc.getBlock()),
                 EnumMobSpawn.COMMAND,
                 false,
                 false);
@@ -575,8 +549,8 @@ public final class EntityUtil {
         Entity e = create(world, tag, name, loc, type);
 
         if (e != null) {
-            net.minecraft.server.Entity nms = toNms(e);
-            BukkitUtil.toNms(world).addAllEntities(nms, CreatureSpawnEvent.SpawnReason.CUSTOM);
+            net.minecraft.server.Entity nms = NMS.toNms(e);
+            NMS.toNms(world).addAllEntities(nms, CreatureSpawnEvent.SpawnReason.CUSTOM);
             return !nms.dead ? e : null;
         }
 

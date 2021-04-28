@@ -1,9 +1,9 @@
 package vip.creatio.basic.util.damageSource;
 
-import vip.creatio.basic.util.EntityUtil;
 import net.minecraft.server.EntityDamageSource;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.util.NMS;
 
 public class EntityDmgSource extends DmgSource {
 
@@ -13,7 +13,7 @@ public class EntityDmgSource extends DmgSource {
     }
 
     public EntityDmgSource(String msgId, @Nullable Entity entity) {
-        super(new EntityDamageSource(msgId, entity == null ? null : EntityUtil.toNms(entity)));
+        super(new EntityDamageSource(msgId, entity == null ? null : NMS.toNms(entity)));
     }
 
     public boolean isThorns() {

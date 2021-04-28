@@ -4,13 +4,13 @@ import net.minecraft.server.EntityTypes;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.basic.util.BukkitUtil;
 import net.minecraft.server.PacketPlayOutSpawnEntity;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import vip.creatio.basic.util.MthUtil;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.Mth;
 
 import java.util.UUID;
@@ -61,7 +61,7 @@ public class SpawnEntityPacket<T extends Entity> extends Packet<PacketPlayOutSpa
         this.za = MthUtil.intToDelta(RAW_ZA.getInt(nms));
         this.yaw = Mth.byteToAngle(RAW_YAW.getByte(nms));
         this.pitch = Mth.byteToAngle(RAW_PITCH.getByte(nms));
-        this.type = BukkitUtil.toBukkitEntityType(TYPE.get(nms));
+        this.type = NMS.toBukkit(TYPE.get(nms));
         this.data = DATA.getInt(nms);
     }
 
@@ -83,9 +83,9 @@ public class SpawnEntityPacket<T extends Entity> extends Packet<PacketPlayOutSpa
                 z,
                 yaw,
                 pitch,
-                BukkitUtil.toNmsEntityType(type),
+                NMS.toNms(type),
                 data,
-                BukkitUtil.toNms(motion)));
+                NMS.toNms(motion)));
         this.eid = eid;
         this.uuid = uuid;
         this.x = x;

@@ -2,10 +2,9 @@ package vip.creatio.basic.packet.particle;
 
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
-import vip.creatio.basic.util.BukkitUtil;
-import vip.creatio.basic.util.ItemUtil;
 import org.bukkit.Particle;
 import org.bukkit.inventory.ItemStack;
+import vip.creatio.basic.util.NMS;
 
 public class ParticleParamItem extends ParticleParam {
 
@@ -14,15 +13,15 @@ public class ParticleParamItem extends ParticleParam {
     private final ItemStack item;
 
     ParticleParamItem(net.minecraft.server.ParticleParamItem nms) {
-        super(nms, BukkitUtil.toBukkit(nms.getParticle()));
-        this.item = ItemUtil.toBukkit(ITEMSTACK.get(nms));
+        super(nms, NMS.toBukkit(nms.getParticle()));
+        this.item = NMS.toBukkit(ITEMSTACK.get(nms));
     }
 
     @SuppressWarnings("unchecked")
     public ParticleParamItem(Particle particle, ItemStack item) {
         super(new net.minecraft.server.ParticleParamItem(
-                (net.minecraft.server.Particle<net.minecraft.server.ParticleParamItem>) BukkitUtil.toNms(particle),
-                ItemUtil.toNms(item)), particle);
+                (net.minecraft.server.Particle<net.minecraft.server.ParticleParamItem>) NMS.toNms(particle),
+                NMS.toNms(item)), particle);
         this.item = item;
     }
 

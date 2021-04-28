@@ -2,10 +2,11 @@ package vip.creatio.basic.tools.loader;
 
 import vip.creatio.basic.annotation.processor.ListenerProcessor;
 import vip.creatio.basic.annotation.processor.TaskProcessor;
+import vip.creatio.basic.cmd.CommandManager;
+import vip.creatio.basic.cmd.CommandRegister;
 import vip.creatio.basic.packet.ChannelPacketListener;
 import vip.creatio.basic.packet.PacketListener;
 import vip.creatio.basic.tools.*;
-import vip.creatio.clib.basic.tools.*;
 
 /**
  * A delegated plugin class that contains basic plugin services
@@ -28,6 +29,9 @@ public abstract class DelegatedPlugin implements PluginInterface {
     /** Listener annotation processing service */
     protected ListenerRegister listenerManager;
 
+    /** Enhanced command registry service */
+    protected CommandRegister commandRegister;
+
 
     protected DelegatedPlugin(AbstractBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -40,6 +44,7 @@ public abstract class DelegatedPlugin implements PluginInterface {
         listenerManager = new ListenerManager(bootstrap);
         msgSender = new MsgManager();
         packetListener = new ChannelPacketListener(bootstrap.getName() + "_listener");
+        commandRegister = new CommandManager(bootstrap);
     }
 
     protected void onLoad() {}
@@ -81,5 +86,9 @@ public abstract class DelegatedPlugin implements PluginInterface {
 
     public ListenerRegister getListenerManager() {
         return listenerManager;
+    }
+
+    public CommandRegister getCommandRegister() {
+        return commandRegister;
     }
 }

@@ -5,6 +5,7 @@ import vip.creatio.accessor.Var;
 import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.util.BukkitUtil;
 import vip.creatio.basic.util.EntityUtil;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.SysUtil;
 import net.minecraft.server.EntityExperienceOrb;
 import net.minecraft.server.PacketPlayOutSpawnEntityExperienceOrb;
@@ -53,7 +54,7 @@ public class SpawnExpOrbPacket extends Packet<PacketPlayOutSpawnEntityExperience
     }
 
     public SpawnExpOrbPacket(ExperienceOrb entity, int count) {
-        super(new PacketPlayOutSpawnEntityExperienceOrb((EntityExperienceOrb) EntityUtil.toNms(entity)));
+        super(new PacketPlayOutSpawnEntityExperienceOrb((EntityExperienceOrb) NMS.toNms(entity)));
         this.eid = entity.getEntityId();
         this.x = entity.getLocation().getX();
         this.y = entity.getLocation().getY();

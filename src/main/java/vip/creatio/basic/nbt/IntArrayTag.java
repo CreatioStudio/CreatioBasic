@@ -43,17 +43,17 @@ extends CollectionTag<IntTag> {
 
     @Override
     public IntTag remove(int index) {
-        return wrap(list.remove(index));
+        return NBTTag.wrap(list.remove(index));
     }
 
     @Override
     public IntTag set(int index, IntTag item) {
-        return wrap(list.set(index, item.unwrap()));
+        return NBTTag.wrap(list.set(index, item.unwrap()));
     }
 
     @Override
     public IntTag get(int index) {
-        return wrap(list.get(index));
+        return NBTTag.wrap(list.get(index));
     }
 
     @Override

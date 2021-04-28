@@ -4,10 +4,9 @@ import vip.creatio.basic.internal.CLibBasicBootstrap;
 import vip.creatio.basic.packet.PacketManager;
 import vip.creatio.basic.tools.MsgManager;
 import vip.creatio.basic.tools.MsgSender;
-import vip.creatio.basic.tools.cmd.TabCompleteHandler;
+import vip.creatio.basic.cmd.TabCompleteHandler;
 import vip.creatio.basic.tools.loader.AbstractBootstrap;
 import vip.creatio.basic.tools.loader.DelegatedPlugin;
-import vip.creatio.clib.basic.tools.*;
 
 public final class CLibBasic extends DelegatedPlugin {
 

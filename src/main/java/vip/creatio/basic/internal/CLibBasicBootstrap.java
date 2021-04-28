@@ -9,14 +9,14 @@ public class CLibBasicBootstrap extends AbstractBootstrap {
     static PluginInterface clibBasic;
 
     public CLibBasicBootstrap() {
-        super(new NmsClassLoader(CLibBasicBootstrap.class), "vip.creatio.clib.basic.CLibBasic");
+        super(new NmsClassLoader(CLibBasicBootstrap.class), "vip.creatio.basic.CLibBasic");
         if (clibBasic != null) throw new IllegalCallerException("Bootstrap constructor cannot be called twice!");
         clibBasic = delegate;
     }
 
     @Override
     protected void onInit() {
-        loader.addIncludePath("vip.creatio.clib.basic");
+        loader.addIncludePath("vip.creatio.basic");
         loader.addIncludePath("vip.creatio.accessor");
         loader.addGlobalPath("vip.creatio.accessor.global");
     }

@@ -1,7 +1,6 @@
 package vip.creatio.basic.chat;
 
 import vip.creatio.basic.tools.Wrapper;
-import vip.creatio.basic.util.BukkitUtil;
 import net.minecraft.server.ChatClickable;
 import net.minecraft.server.ChatHoverable;
 import net.minecraft.server.ChatModifier;
@@ -9,6 +8,7 @@ import net.minecraft.server.EnumChatFormat;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.util.NMS;
 
 /**
  * Wrapper class of ChatModifier(Style)
@@ -70,7 +70,7 @@ public class ChatStyle implements Wrapper<ChatModifier> {
     }
 
     public NamespacedKey getFont() {
-        return BukkitUtil.toBukkit(modifier.getFont());
+        return NMS.toBukkit(modifier.getFont());
     }
 
     public ChatStyle withColor(@Nullable ChatColor color) {

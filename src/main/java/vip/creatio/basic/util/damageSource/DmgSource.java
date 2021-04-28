@@ -9,10 +9,10 @@ import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
-import vip.creatio.basic.util.EntityUtil;
+import vip.creatio.basic.util.NMS;
 
-import static vip.creatio.basic.util.EntityUtil.toNms;
-import static vip.creatio.basic.util.EntityUtil.toBukkit;
+import static vip.creatio.basic.util.NMS.toNms;
+import static vip.creatio.basic.util.NMS.toBukkit;
 
 public class DmgSource implements Wrapper<DamageSource> {
 
@@ -46,62 +46,62 @@ public class DmgSource implements Wrapper<DamageSource> {
 
     public static DmgSource sting(LivingEntity entity) {
         return new EntityDmgSource((EntityDamageSource)
-                DamageSource.b /* sting */ (EntityUtil.toNms(entity)));
+                DamageSource.b /* sting */ (NMS.toNms(entity)));
     }
 
     public static DmgSource mobAttack(LivingEntity entity) {
         return new EntityDmgSource((EntityDamageSource)
-                DamageSource.mobAttack(EntityUtil.toNms(entity)));
+                DamageSource.mobAttack(NMS.toNms(entity)));
     }
 
     public static DmgSource indirectMobAttack(Entity direct, LivingEntity indirect) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.a /* indirectMobAttack */ (EntityUtil.toNms(direct), EntityUtil.toNms(indirect)));
+                DamageSource.a /* indirectMobAttack */ (NMS.toNms(direct), NMS.toNms(indirect)));
     }
 
     public static DmgSource playerAttack(HumanEntity human) {
         return new EntityDmgSource((EntityDamageSource)
-                DamageSource.playerAttack(EntityUtil.toNms(human)));
+                DamageSource.playerAttack(NMS.toNms(human)));
     }
 
     public DmgSource arrow(AbstractArrow arrow, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.arrow((EntityArrow) EntityUtil.toNms(arrow), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.arrow((EntityArrow) NMS.toNms(arrow), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource trident(Trident trident, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.a(EntityUtil.toNms(trident), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.a(NMS.toNms(trident), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource fireworks(Firework firework, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.a((EntityFireworks) EntityUtil.toNms(firework), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.a((EntityFireworks) NMS.toNms(firework), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource fireball(SizedFireball fireball, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.fireball((EntityFireballFireball) EntityUtil.toNms(fireball), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.fireball((EntityFireballFireball) NMS.toNms(fireball), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource witherSkull(WitherSkull skull, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.a((EntityWitherSkull) EntityUtil.toNms(skull), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.a((EntityWitherSkull) NMS.toNms(skull), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource thrown(Entity thrown, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.projectile(EntityUtil.toNms(thrown), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.projectile(NMS.toNms(thrown), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource indirectMagic(Entity magic, @Nullable Entity shooter) {
         return new IndirectEntityDmgSource((EntityDamageSourceIndirect)
-                DamageSource.c(EntityUtil.toNms(magic), shooter == null ? null : EntityUtil.toNms(shooter)));
+                DamageSource.c(NMS.toNms(magic), shooter == null ? null : NMS.toNms(shooter)));
     }
 
     public DmgSource thorns(Entity attacker) {
         return new EntityDmgSource((EntityDamageSource)
-                DamageSource.a(EntityUtil.toNms(attacker)));
+                DamageSource.a(NMS.toNms(attacker)));
     }
 
     public boolean isBypassArmor() {
@@ -144,13 +144,13 @@ public class DmgSource implements Wrapper<DamageSource> {
     @Nullable
     public Entity getDirectEntity() {
         net.minecraft.server.Entity e = wrapper.j /* getDirectEntity */ ();
-        return e == null ? null : EntityUtil.toBukkit(e);
+        return e == null ? null : NMS.toBukkit(e);
     }
 
     @Nullable
     public Entity getEntity() {
         net.minecraft.server.Entity e = wrapper.getEntity();
-        return e == null ? null : EntityUtil.toBukkit(e);
+        return e == null ? null : NMS.toBukkit(e);
     }
 
     public boolean isFireSource() {
@@ -199,7 +199,7 @@ public class DmgSource implements Wrapper<DamageSource> {
     }
 
     public Component getLocalizedDeathMessage(LivingEntity killer) {
-        return Component.wrap(wrapper.getLocalizedDeathMessage(EntityUtil.toNms(killer)));
+        return Component.wrap(wrapper.getLocalizedDeathMessage(NMS.toNms(killer)));
     }
 
     public static DmgSource wrap(DamageSource source) {

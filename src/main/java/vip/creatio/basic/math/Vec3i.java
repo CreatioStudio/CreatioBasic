@@ -1,4 +1,4 @@
-package vip.creatio.basic.util;
+package vip.creatio.basic.math;
 
 import net.minecraft.server.BaseBlockPosition;
 import org.bukkit.Location;
@@ -9,6 +9,7 @@ import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.basic.tools.Wrapper;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.Mth;
 import vip.creatio.common.annotation.Immutable;
 
@@ -87,7 +88,7 @@ public class Vec3i implements Wrapper<BaseBlockPosition>, Comparable<Vec3i> {
     }
 
     public Vec3i relative(BlockFace dir, int v) {
-        return new Vec3i(vec.shift(BlockUtil.toNms(dir), v));
+        return new Vec3i(vec.shift(NMS.toNms(dir), v));
     }
 
     public Vec3i subtract(Vec3i v) {

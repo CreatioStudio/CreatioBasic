@@ -4,9 +4,9 @@ import net.minecraft.server.Item;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.basic.util.ItemUtil;
 import net.minecraft.server.PacketPlayOutSetCooldown;
 import org.bukkit.Material;
+import vip.creatio.basic.util.NMS;
 
 public class SetCooldownPacket extends Packet<PacketPlayOutSetCooldown> {
 
@@ -18,7 +18,7 @@ public class SetCooldownPacket extends Packet<PacketPlayOutSetCooldown> {
 
     SetCooldownPacket(PacketPlayOutSetCooldown nms) {
         super(nms);
-        this.material = ItemUtil.toBukkit(MATERIAL.get(nms));
+        this.material = NMS.toBukkit(MATERIAL.get(nms));
         this.tick = TICK.getInt(nms);
     }
 
@@ -31,7 +31,7 @@ public class SetCooldownPacket extends Packet<PacketPlayOutSetCooldown> {
      * @param tick how long will the cooldown be.
      */
     public SetCooldownPacket(Material mat, int tick) {
-        super(new PacketPlayOutSetCooldown(ItemUtil.toNms(mat), tick));
+        super(new PacketPlayOutSetCooldown(NMS.toNms(mat), tick));
         this.material = mat;
         this.tick = tick;
     }

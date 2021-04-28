@@ -42,17 +42,17 @@ extends CollectionTag<LongTag> {
 
     @Override
     public LongTag remove(int index) {
-        return wrap(list.remove(index));
+        return NBTTag.wrap(list.remove(index));
     }
 
     @Override
     public LongTag set(int index, LongTag item) {
-        return wrap(list.set(index, item.unwrap()));
+        return NBTTag.wrap(list.set(index, item.unwrap()));
     }
 
     @Override
     public LongTag get(int index) {
-        return wrap(list.get(index));
+        return NBTTag.wrap(list.get(index));
     }
 
     @Override

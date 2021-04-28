@@ -3,7 +3,7 @@ package vip.creatio.basic.packet.particle;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import org.bukkit.Particle;
-import vip.creatio.basic.util.BukkitUtil;
+import vip.creatio.basic.util.NMS;
 
 public class ParticleParamRedstone extends ParticleParam {
 
@@ -18,7 +18,7 @@ public class ParticleParamRedstone extends ParticleParam {
     private float size;
 
     ParticleParamRedstone(net.minecraft.server.ParticleParamRedstone nms) {
-        super(nms, BukkitUtil.toBukkit(nms.getParticle()));
+        super(nms, NMS.toBukkit(nms.getParticle()));
         this.red = RED.getFloat(nms);
         this.green = GREEN.getFloat(nms);
         this.blue = BLUE.getFloat(nms);

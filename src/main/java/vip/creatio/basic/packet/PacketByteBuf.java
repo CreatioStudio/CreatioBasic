@@ -7,7 +7,7 @@ import io.netty.util.ByteProcessor;
 import net.minecraft.server.PacketDataSerializer;
 import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.tools.Wrapper;
-import vip.creatio.basic.util.Vec3i;
+import vip.creatio.basic.math.Vec3i;
 
 import java.io.IOException;
 import java.io.InputStream;

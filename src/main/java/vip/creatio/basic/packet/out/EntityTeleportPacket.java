@@ -4,9 +4,9 @@ import org.bukkit.Location;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.basic.util.EntityUtil;
 import net.minecraft.server.PacketPlayOutEntityTeleport;
 import org.bukkit.entity.Entity;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.Mth;
 
 public class EntityTeleportPacket extends Packet<PacketPlayOutEntityTeleport> {
@@ -39,7 +39,7 @@ public class EntityTeleportPacket extends Packet<PacketPlayOutEntityTeleport> {
     }
 
     public EntityTeleportPacket(Entity entity) {
-        this(new PacketPlayOutEntityTeleport(EntityUtil.toNms(entity)));
+        this(new PacketPlayOutEntityTeleport(NMS.toNms(entity)));
     }
 
     public EntityTeleportPacket(int eid, double x, double y, double z, float yaw, float pitch, boolean onGround) {

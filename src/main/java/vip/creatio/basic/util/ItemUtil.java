@@ -3,10 +3,8 @@ package vip.creatio.basic.util;
 import com.google.common.collect.Multimap;
 import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.nbt.*;
-import vip.creatio.accessor.Func;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
-import net.minecraft.server.Item;
 import net.minecraft.server.ItemArmor;
 import net.minecraft.server.ItemAxe;
 import net.minecraft.server.NBTTagCompound;
@@ -14,8 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -27,7 +23,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import vip.creatio.clib.basic.nbt.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,57 +91,31 @@ public final class ItemUtil {
         getMeta(item).setAttributeModifiers(map);
     }
 
-    public static ItemStack toBukkitCopy(@NotNull net.minecraft.server.ItemStack nmsItem) {
-        return CraftItemStack.asBukkitCopy(nmsItem);
-    }
-
-    private static final Func<CraftItemStack> CRAFT_ITEM_STACK = Reflection.constructor(CraftItemStack.class, net.minecraft.server.ItemStack.class);
-    public static ItemStack toBukkit(@NotNull net.minecraft.server.ItemStack nmsItem) {
-        return CRAFT_ITEM_STACK.invoke(nmsItem);
-    }
-
-    private static final Var<net.minecraft.server.ItemStack> ITEM_STACK_HANDLE_VAR = Reflection.field(CraftItemStack.class, "handle");
-    public static net.minecraft.server.ItemStack toNms(@NotNull ItemStack item) {
-        return ITEM_STACK_HANDLE_VAR.get(item);
-    }
-
-    public static net.minecraft.server.ItemStack toNmsCopy(@NotNull ItemStack item) {
-        return CraftItemStack.asNMSCopy(item);
-    }
-
-    public static Item toNms(@NotNull Material mat) {
-        return CraftMagicNumbers.getItem(mat);
-    }
-
-    public static Material toBukkit(@NotNull Item nmsMat) {
-        return CraftMagicNumbers.getMaterial(nmsMat);
-    }
-
     public static boolean isFireResistance(@NotNull Material mat) {
-        return toNms(mat).u(); /* isItemFireResistance */
+        return NMS.toNms(mat).u(); /* isItemFireResistance */
     }
 
     public static boolean isArmor(@NotNull Material mat) {
-        return toNms(mat) instanceof ItemArmor;
+        return NMS.toNms(mat) instanceof ItemArmor;
     }
 
     public static int getMaxDurability(@NotNull Material mat) {
-        return toNms(mat).getMaxDurability();
+        return NMS.toNms(mat).getMaxDurability();
     }
     public static int getMaxDurability(@NotNull ItemStack item) {
-        return toNms(item).getItem().getMaxDurability();
+        return NMS.toNms(item).getItem().getMaxDurability();
     }
 
     public static int getMaxStackSize(@NotNull Material mat) {
-        return toNms(mat).getMaxStackSize();
+        return NMS.toNms(mat).getMaxStackSize();
     }
 
     public static boolean isFood(@NotNull Material mat) {
-        return toNms(mat).isFood();
+        return NMS.toNms(mat).isFood();
     }
 
     public static boolean isAxe(@NotNull Material mat) {
-        return toNms(mat) instanceof ItemAxe;
+        return NMS.toNms(mat) instanceof ItemAxe;
     }
 
     public static <T extends LivingEntity> void damage(@NotNull ItemStack item, int amount, T entity, Consumer<T> onBreak) {
@@ -220,12 +189,12 @@ public final class ItemUtil {
     }
 
     public static CompoundTag getOrCreateTag(ItemStack itemStack) {
-        net.minecraft.server.ItemStack nms = toNms(itemStack);
+        net.minecraft.server.ItemStack nms = NMS.toNms(itemStack);
         return getOrCreateTag(nms);
     }
 
     public static @Nullable CompoundTag getTag(ItemStack itemStack) {
-        net.minecraft.server.ItemStack nms = toNms(itemStack);
+        net.minecraft.server.ItemStack nms = NMS.toNms(itemStack);
         return getTag(nms);
     }
 
@@ -239,7 +208,7 @@ public final class ItemUtil {
     }
 
     public static List<net.minecraft.server.ItemStack> getNmsInvItems(Player p) {
-        return EntityUtil.toNms(p).inventory.items;
+        return NMS.toNms(p).inventory.items;
     }
 
     public static @Nullable List<Component> getLores(net.minecraft.server.ItemStack nms) {
@@ -262,17 +231,17 @@ public final class ItemUtil {
     }
 
     public static @Nullable List<Component> getLores(ItemStack itemStack) {
-        return getLores(toNms(itemStack));
+        return getLores(NMS.toNms(itemStack));
     }
 
     public static ItemStack fromNBT(CompoundTag tag) {
-        return toBukkit(net.minecraft.server.ItemStack.a /* fromNBT */ (tag.unwrap()));
+        return NMS.toBukkit(net.minecraft.server.ItemStack.a /* fromNBT */ (tag.unwrap()));
     }
 
     public static ItemStack fromNBT(Material mat, int count, CompoundTag tag) {
         CompoundTag item = new CompoundTag();
         item.putByte("Count", (byte) count);
-        item.putString("id", toNms(mat).getName());
+        item.putString("id", NMS.toNms(mat).getName());
         item.put("tag", tag);
         return fromNBT(item);
     }

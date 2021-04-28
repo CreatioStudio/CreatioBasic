@@ -1,25 +1,18 @@
 package vip.creatio.basic.util;
 
-import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.command.VanillaCommandWrapper;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.craftbukkit.CraftServer;
 import vip.creatio.basic.nbt.CompoundTag;
 import vip.creatio.common.Pair;
-import vip.creatio.accessor.Reflection;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.*;
 import org.bukkit.*;
-import org.bukkit.Particle;
-import org.bukkit.craftbukkit.CraftParticle;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.CraftSound;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
-import org.bukkit.craftbukkit.util.CraftVector;
 import org.bukkit.entity.EntityType;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.common.ReflectUtil;
 
@@ -32,7 +25,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 public final class BukkitUtil {
 
@@ -45,15 +37,6 @@ public final class BukkitUtil {
     public static final String NMS_PKG_NAME = "net.minecraft.server." + VERSION;
     public static final String CB_PKG_NAME = "org.bukkit.craftbukkit." + VERSION;
 
-    public static Class<?> getNmsClass(String name) {
-        return ReflectUtil.forName(NMS_PKG_NAME + "." + name);
-    }
-
-    public static Class<?> getCbClass(String name) {
-        return ReflectUtil.forName(CB_PKG_NAME + '.' + name);
-    }
-
-
 
     public static CompoundTag parseNbt(String nbt) {
         try {
@@ -65,13 +48,13 @@ public final class BukkitUtil {
 
 
     // EntityTypes
-    private static final HashMap<
+    static final HashMap<
             Class<? extends org.bukkit.entity.Entity>,
             Pair<Class<? extends CraftEntity>, Class<? extends Entity>>>
             nmsEntityTypeMap = new HashMap<>();
-    private static final HashBiMap<Class<? extends org.bukkit.entity.Entity>, EntityType>
+    static final HashBiMap<Class<? extends org.bukkit.entity.Entity>, EntityType>
             entityClassTypeMap = HashBiMap.create();
-    private static final HashBiMap<
+    static final HashBiMap<
             Class<? extends net.minecraft.server.Entity>,
             EntityTypes<? extends net.minecraft.server.Entity>>
             nmsEntityClassTypeMap = HashBiMap.create();
@@ -163,173 +146,52 @@ public final class BukkitUtil {
         }
     }
 
-    public static Class<? extends net.minecraft.server.Entity>
-    toNmsEntityClass(Class<? extends org.bukkit.entity.Entity> bukkitClass) {
-        return nmsEntityTypeMap.get(bukkitClass).getValue();
-    }
-
-    public static Class<? extends net.minecraft.server.Entity>
-    toNmsEntityClass(EntityType type) {
-        return nmsEntityTypeMap.get(type.getEntityClass()).getValue();
-    }
-
-    public static Class<? extends CraftEntity>
-    toCbEntityClass(Class<? extends org.bukkit.entity.Entity> bukkitClass) {
-        return nmsEntityTypeMap.get(bukkitClass).getKey();
-    }
-
-    public static Class<? extends CraftEntity>
-    toCbEntityClass(EntityType type) {
-        return nmsEntityTypeMap.get(type.getEntityClass()).getKey();
-    }
-
-    public static EntityType
-    toBukkitEntityType(Class<? extends org.bukkit.entity.Entity> cls) {
-        return entityClassTypeMap.get(cls);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends net.minecraft.server.Entity> EntityTypes<T>
-    toNmsEntityType(Class<T> cls) {
-        return (EntityTypes<T>) nmsEntityClassTypeMap.get(cls);
-    }
-
-    public static EntityType
-    toBukkitEntityType(EntityTypes<?> types) {
-        Class<?> cls = nmsEntityClassTypeMap.inverse().get(types);
-        return entityClassTypeMap.get(cls);
-    }
-
-    public static EntityTypes<?>
-    toNmsEntityType(EntityType type) {
-        return toNmsEntityType(toNmsEntityClass(type));
-    }
-
-
-
-    // Packet
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Packet<?>> Class<T> toNmsPacket(Class<vip.creatio.basic.packet.Packet<T>> wrapped) {
-        return (Class<T>) vip.creatio.basic.packet.Packet.getNmsClass(wrapped);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Packet<?>> Class<vip.creatio.basic.packet.Packet<T>> toWrappedPacket(Class<T> wrapped) {
-        return (Class<vip.creatio.basic.packet.Packet<T>>) vip.creatio.basic.packet.Packet.getWrappedClass(wrapped);
-    }
-
-
-    // Particle
-    private static final BiMap<Particle, MinecraftKey> PARTICLES =
-            Reflection.<BiMap<Particle, MinecraftKey>>field(CraftParticle.class, "particles").get();
-    private static final Map<Particle, Particle> ALIASES =
-            Reflection.<Map<Particle, Particle>>field(CraftParticle.class, "aliases").get();
-
-    public static net.minecraft.server.Particle<?> toNms(Particle particle) {
-        Particle canonical = particle;
-        if (ALIASES.containsKey(particle)) {
-            canonical = ALIASES.get(particle);
-        }
-
-        return IRegistry.PARTICLE_TYPE.get(PARTICLES.get(canonical));
-    }
-
-    public static Particle toBukkit(net.minecraft.server.Particle<?> nms) {
-        return CraftParticle.toBukkit(nms);
-    }
-
-    public static Particle toBukkit(ParticleParam nms) {
-        return CraftParticle.toBukkit(nms);
-    }
-
-
 
     // NamespacedKey/MinecraftKey/ResourceLocation
-
-    public static NamespacedKey toBukkit(MinecraftKey nms) {
-        return CraftNamespacedKey.fromMinecraft(nms);
-    }
-
-    public static MinecraftKey toNms(NamespacedKey key) {
-        return CraftNamespacedKey.toMinecraft(key);
-    }
 
     public static NamespacedKey parseKey(@NotNull String key) {
         return CraftNamespacedKey.fromString(key);
     }
 
-
-
-    // Difficulty
-
-    private static final BiMap<Difficulty, EnumDifficulty> difficultyMap =
-            HashBiMap.create(Arrays.stream(Difficulty.values())
-                    .collect(Collectors.toMap(d -> d, d -> EnumDifficulty.valueOf(d.name()))));
-
-    public static EnumDifficulty toNms(Difficulty diff) {
-        return difficultyMap.get(diff);
-    }
-
-    public static Difficulty toBukkit(EnumDifficulty nms) {
-        return difficultyMap.inverse().get(nms);
-    }
-
-
-
-    // Vector
-
-    public static Vec3D toNms(Vector vec) {
-        return CraftVector.toNMS(vec);
-    }
-
-    public static Vector toBukkit(Vec3D nms) {
-        return CraftVector.toBukkit(nms);
-    }
-
-
-
-    // World
-
-    public static final WorldServer DEFAULT_WORLD = toNms(Bukkit.getWorlds().get(0));
-
-    public static WorldServer toNms(org.bukkit.World world) {
-        return ((CraftWorld) world).getHandle();
-    }
-
-    public static CraftWorld toBukkit(WorldServer nms) {
-        return nms.getWorld();
-    }
-
-
-
-    // Sound
-
-    public static SoundEffect toNms(Sound sound) {
-        return CraftSound.getSoundEffect(sound);
-    }
-
-    public static Sound toBukkit(SoundEffect effect) {
-        return CraftSound.getBukkit(effect);
-    }
-
-
+    public static final WorldServer DEFAULT_WORLD = NMS.toNms(Bukkit.getWorlds().get(0));
 
     // Server
 
     public static DedicatedServer getServer() {
-        return toNms(Bukkit.getServer());
-    }
-
-    public static DedicatedServer toNms(Server server) {
-        return ((CraftServer) server).getServer();
+        return NMS.toNms(Bukkit.getServer());
     }
 
     public static double[] getTps() {
         return getServer().recentTps;
     }
 
-    public static CommandListenerWrapper toNms(CommandSender sender) {
-        return VanillaCommandWrapper.getListener(sender);
+    public static World getWorld(CommandSender sender) {
+        return getWorld(NMS.toNms(sender));
+    }
+
+    public static Location getLocation(CommandSender sender) {
+        return getLocation(NMS.toNms(sender));
+    }
+
+    public static Location getLocation(CommandListenerWrapper nms) {
+        Vec3D vec = nms.getPosition();
+        Vec2F rot = nms.i /* getDirection */ ();
+        return new Location(getWorld(nms), vec.getX(), vec.getY(), vec.getZ(), rot.i, rot.j);
+    }
+
+    public static World getWorld(CommandListenerWrapper nms) {
+        return NMS.toBukkit(nms.getWorld());
+    }
+
+    public static SimpleCommandMap getCommandMap() {
+        return ((CraftServer) Bukkit.getServer()).getCommandMap();
+    }
+
+    public static Class<?> getNmsClass(String name) {
+        return ReflectUtil.forName(NMS_PKG_NAME + "." + name);
+    }
+
+    public static Class<?> getCbClass(String name) {
+        return ReflectUtil.forName(CB_PKG_NAME + '.' + name);
     }
 }

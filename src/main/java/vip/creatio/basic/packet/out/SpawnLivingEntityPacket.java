@@ -6,6 +6,7 @@ import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.util.BukkitUtil;
 import vip.creatio.basic.util.EntityUtil;
 import vip.creatio.basic.util.MthUtil;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.Mth;
 import vip.creatio.common.SysUtil;
 import net.minecraft.server.EntityLiving;
@@ -78,7 +79,7 @@ public class SpawnLivingEntityPacket<T extends LivingEntity> extends Packet<Pack
                                    EntityType type,
                                    Vector motion) {
         this(SysUtil.exec(() -> {
-            EntityLiving nms = (EntityLiving) EntityUtil.create(BukkitUtil.DEFAULT_WORLD, BukkitUtil.toNmsEntityType(type));
+            EntityLiving nms = (EntityLiving) EntityUtil.create(BukkitUtil.DEFAULT_WORLD, NMS.toNms(type));
             assert nms != null;
             EntityUtil.setEntityId(nms, eid);
             EntityUtil.setUniqueId(nms, uuid);
@@ -94,7 +95,7 @@ public class SpawnLivingEntityPacket<T extends LivingEntity> extends Packet<Pack
                                    float pitch,
                                    float head_pitch,
                                    Vector motion) {
-        this(EntityUtil.toNms(entity), x, y, z, yaw, pitch, head_pitch, motion);
+        this(NMS.toNms(entity), x, y, z, yaw, pitch, head_pitch, motion);
     }
 
     public SpawnLivingEntityPacket(EntityLiving nms,
@@ -113,7 +114,7 @@ public class SpawnLivingEntityPacket<T extends LivingEntity> extends Packet<Pack
         })));
         this.eid = nms.getId();
         this.uuid = nms.getUniqueID();
-        this.type = BukkitUtil.toBukkitEntityType(nms.getEntityType());
+        this.type = NMS.toBukkit(nms.getEntityType());
         this.x = x;
         this.y = y;
         this.z = z;

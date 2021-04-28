@@ -1,7 +1,7 @@
 package vip.creatio.basic.packet.out;
 
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.basic.util.EntityUtil;
+import vip.creatio.basic.util.NMS;
 import vip.creatio.common.Mth;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
@@ -25,7 +25,7 @@ public class EntityHeadRotationPacket extends Packet<PacketPlayOutEntityHeadRota
 
     /** body yaw and head pitch */
     public EntityHeadRotationPacket(Entity entity, float yaw) {
-        super(new PacketPlayOutEntityHeadRotation(EntityUtil.toNms(entity), Mth.angleToByte(yaw)));
+        super(new PacketPlayOutEntityHeadRotation(NMS.toNms(entity), Mth.angleToByte(yaw)));
         this.yaw = yaw;
         this.eid = entity.getEntityId();
     }
