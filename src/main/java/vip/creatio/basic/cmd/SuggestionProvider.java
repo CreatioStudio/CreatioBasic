@@ -8,6 +8,6 @@ import java.util.concurrent.CompletableFuture;
 @FunctionalInterface
 public interface SuggestionProvider {
 
-    CompletableFuture<Suggestions> getSuggestions(Content content, SuggestionsBuilder builder);
+    CompletableFuture<Suggestions> getSuggestions(Context context, SuggestionsBuilder builder);
 
 }

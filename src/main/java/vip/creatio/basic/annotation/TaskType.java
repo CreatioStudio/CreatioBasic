@@ -8,6 +8,9 @@ public enum TaskType {
 
     ON_LOAD,
 
-    ON_UNLOAD;
+    ON_UNLOAD,
+
+    /** Called when server finished loading, after ON_LOAD */
+    POST_WORLD;
 
 }

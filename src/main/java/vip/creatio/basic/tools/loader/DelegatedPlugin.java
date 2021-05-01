@@ -1,5 +1,9 @@
 package vip.creatio.basic.tools.loader;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.ServerLoadEvent;
 import vip.creatio.basic.annotation.processor.ListenerProcessor;
 import vip.creatio.basic.annotation.processor.TaskProcessor;
 import vip.creatio.basic.cmd.CommandManager;
@@ -44,13 +48,20 @@ public abstract class DelegatedPlugin implements PluginInterface {
         listenerManager = new ListenerManager(bootstrap);
         msgSender = new MsgManager();
         packetListener = new ChannelPacketListener(bootstrap.getName() + "_listener");
-        commandRegister = new CommandManager(bootstrap);
     }
 
     protected void onLoad() {}
 
     @Override
     public final void enable() {
+        commandRegister = new CommandManager(bootstrap);
+        Bukkit.getPluginManager().registerEvent(ServerLoadEvent.class, new Listener(){},
+                EventPriority.NORMAL, (l, e) -> {
+            if (ServerLoadEvent.class.isAssignableFrom(e.getClass())) {
+                taskManager.onPostWorld();
+                onPostWorld();
+            }
+        }, bootstrap);
         onEnable();
         PacketListener.registerListener(bootstrap, packetListener);
         bootstrap.loader.addAnnotationProcessor(new ListenerProcessor(listenerManager));
@@ -71,6 +82,9 @@ public abstract class DelegatedPlugin implements PluginInterface {
     }
 
     protected void onDisable() {}
+
+    /** Called when server finished loading */
+    protected void onPostWorld() {}
 
     public MsgSender getMsgSender() {
         return msgSender;

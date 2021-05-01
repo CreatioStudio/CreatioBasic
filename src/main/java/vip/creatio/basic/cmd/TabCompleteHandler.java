@@ -19,7 +19,6 @@ public class TabCompleteHandler {
                         .then(Argument.of("midnight"))
                         .then(Argument.arg("time", ArgumentTypes.ofInt()).executes(c -> {
                             System.out.println(c.getInput());
-                            c.setErrMessage("Fuck");
                             return false;
                         }).suggests((c, b) -> {
                             for (int i = 0; i < 50; i++) {
@@ -32,7 +31,11 @@ public class TabCompleteHandler {
                             System.out.println("Yes!");
                             Vector vec = c.getArgument("loc", ArgumentTypes.Coords.class).getPosition(c.getSource());
                             c.getWorld().spawnParticle(Particle.FLAME, vec.toLocation(c.getWorld()), 500);
-                            return true;
+                        }).suggests((c, b) -> {
+                            for (int i = 0; i < 50; i++) {
+                                b.suggest(i);
+                            }
+                            return b.buildFuture();
                         }))))
                 .then(Argument.of("query")
                         .then(Argument.of("daytime"))

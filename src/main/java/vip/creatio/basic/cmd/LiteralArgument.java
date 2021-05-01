@@ -1,16 +1,18 @@
 package vip.creatio.basic.cmd;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
 public class LiteralArgument extends Argument {
 
-    protected LiteralArgument(String option) {
-        super(LiteralArgumentBuilder.literal(option));
+    protected final String literal;
+
+    protected LiteralArgument(String literal) {
+        this.literal = literal;
     }
 
     public static LiteralArgument of(String option) {
@@ -18,7 +20,7 @@ public class LiteralArgument extends Argument {
     }
 
     public String getLiteral() {
-        return ((LiteralArgumentBuilder<?>) builder).getLiteral();
+        return literal;
     }
 
     @Override
@@ -40,7 +42,12 @@ public class LiteralArgument extends Argument {
     }
 
     @Override
-    public LiteralArgument requires(Predicate<CommandSender> requirement) {
+    public LiteralArgument executes(NilCommandAction command) {
+        return executes((CommandAction) command);
+    }
+
+    @Override
+    public LiteralArgument requires(@NotNull Predicate<CommandSender> requirement) {
         super.requires(requirement);
         return this;
     }
@@ -49,6 +56,40 @@ public class LiteralArgument extends Argument {
     public LiteralArgument redirect(CommandNode<?> target) {
         super.redirect(target);
         return this;
+    }
+
+    @Override
+    public LiteralArgument redirect(CommandNode<?> target, SingleRedirectSource redirectTo) {
+        super.redirect(target, redirectTo);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fork(CommandNode<?> target, RedirectSource redirectTo) {
+        super.fork(target, redirectTo);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument forward(CommandNode<?> target, RedirectSource redirectTo, boolean fork) {
+        super.forward(target, redirectTo, fork);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fallbacks(FallbackAction fallback) {
+        super.fallbacks(fallback);
+        return this;
+    }
+
+    @Override
+    public LiteralCommandNode<?> internalBuild(FallbackAction[] fallback) {
+        if (this.fallback[0] != DefaultFallbackAction.DEFAULT) fallback = this.fallback;
+        ExLiteralCommandNode result = new ExLiteralCommandNode(literal, command, requirement, target, redirectSource, forks, fallback);
+
+        addNodes(result);
+
+        return result;
     }
 
     @Override

@@ -1,38 +1,35 @@
 package vip.creatio.basic.cmd;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
-import net.minecraft.server.CommandListenerWrapper;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
 public class RequiredArgument<T> extends Argument {
 
-    protected SuggestionProvider suggestionProvider;
-    protected ArgumentType<T> argumentType;
+    protected final String name;
+    protected final ArgumentType<T> argumentType;
+    protected SuggestionProvider suggestions;
 
     protected RequiredArgument(String name, ArgumentType<T> type) {
-        super(RequiredArgumentBuilder.argument(name, ArgumentTypes.unwrap(type)));
         this.argumentType = type;
+        this.name = name;
     }
 
     public static <T> RequiredArgument<T> arg(String name, ArgumentType<T> type) {
         return new RequiredArgument<>(name, type);
     }
 
-    @SuppressWarnings("unchecked")
     public RequiredArgument<T> suggests(SuggestionProvider suggestions) {
-        suggestionProvider = suggestions;
-        ((RequiredArgumentBuilder<CommandListenerWrapper, ?>) builder).suggests((c, s) ->
-                suggestions.getSuggestions(new Content(c, defaultErrMsg), s));
+        this.suggestions = suggestions;
         return this;
     }
 
-    public SuggestionProvider getSuggestionProvider() {
-        return suggestionProvider;
+    public SuggestionProvider getCustomSuggestions() {
+        return suggestions;
     }
 
     public ArgumentType<T> getType() {
@@ -40,7 +37,7 @@ public class RequiredArgument<T> extends Argument {
     }
 
     public String getName() {
-        return ((RequiredArgumentBuilder<?, ?>) builder).getName();
+        return name;
     }
 
     @Override
@@ -62,7 +59,12 @@ public class RequiredArgument<T> extends Argument {
     }
 
     @Override
-    public RequiredArgument<T> requires(Predicate<CommandSender> requirement) {
+    public RequiredArgument<T> executes(NilCommandAction command) {
+        return executes((CommandAction) command);
+    }
+
+    @Override
+    public RequiredArgument<T> requires(@NotNull Predicate<CommandSender> requirement) {
         super.requires(requirement);
         return this;
     }
@@ -74,7 +76,20 @@ public class RequiredArgument<T> extends Argument {
     }
 
     @Override
-    public ArgumentCommandNode<?, ?> build() {
-        return (ArgumentCommandNode<?, ?>) super.build();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected ArgumentCommandNode<?, T> internalBuild(FallbackAction[] fallback) {
+        if (this.fallback[0] != DefaultFallbackAction.DEFAULT) fallback = this.fallback;
+        ExArgumentCommandNode<T> result = new ExArgumentCommandNode<>(name, argumentType, command, requirement, target,
+                redirectSource, forks, suggestions, fallback);
+
+        addNodes(result);
+
+        return result;
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked"})
+    public ArgumentCommandNode<?, T> build() {
+        return (ArgumentCommandNode<?, T>) super.build();
     }
 }

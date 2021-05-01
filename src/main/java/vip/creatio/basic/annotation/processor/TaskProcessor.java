@@ -35,6 +35,8 @@ public class TaskProcessor implements AnnotationProcessor<Task> {
                 case ON_LOAD:
                     executor.addOnLoadTask(wrapper);
                     break;
+                case POST_WORLD:
+                    executor.addPostWorldTask(wrapper);
             }
         } else {
             CLibBasic.intern("[CLibBasic] Unable to register task for method " + mth);

@@ -18,6 +18,8 @@ public class TaskManager implements GlobalTaskExecutor {
     protected final Queue<Runnable> UNLOAD_TASK = new ConcurrentLinkedQueue<>();
     /** Called when plugin load */
     protected final Queue<Runnable> LOAD_TASK = new ConcurrentLinkedQueue<>();
+    /** Called when server finished loading */
+    protected final Queue<Runnable> POST_WORLD_TASK = new ConcurrentLinkedQueue<>();
 
     protected final Timer TIMER = new Timer("TaskManagerAsyncExecutor");
     protected final JavaPlugin plugin;
@@ -42,6 +44,10 @@ public class TaskManager implements GlobalTaskExecutor {
 
     public void addOnLoadTask(Runnable r) {
         LOAD_TASK.add(r);
+    }
+
+    public void addPostWorldTask(Runnable r) {
+        POST_WORLD_TASK.add(r);
     }
 
     public void removeTask(Runnable r) {
@@ -75,6 +81,10 @@ public class TaskManager implements GlobalTaskExecutor {
         LOAD_TASK.remove(r);
     }
 
+    public void removePostWorldTask(Runnable r) {
+        POST_WORLD_TASK.remove(r);
+    }
+
     public void onUnload() {
         UNLOAD_TASK.forEach(Runnable::run);
         TIMER.cancel();
@@ -84,6 +94,9 @@ public class TaskManager implements GlobalTaskExecutor {
         LOAD_TASK.forEach(Runnable::run);
     }
 
+    public void onPostWorld() {
+        POST_WORLD_TASK.forEach(Runnable::run);
+    }
 
     private static int syncTickCounter = 0;
 

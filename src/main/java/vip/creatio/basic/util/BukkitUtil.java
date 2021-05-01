@@ -1,11 +1,14 @@
 package vip.creatio.basic.util;
 
 import com.google.common.collect.HashBiMap;
+import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.entity.Player;
 import vip.creatio.basic.nbt.CompoundTag;
+import vip.creatio.basic.packet.out.CommandsPacket;
 import vip.creatio.common.Pair;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.*;
@@ -163,6 +166,17 @@ public final class BukkitUtil {
 
     public static double[] getTps() {
         return getServer().recentTps;
+    }
+
+    /** Send a command map packet to sync command set with player, bypasses PlayerCommandsEvent */
+    public static void syncCommand(Player p, RootCommandNode<?> node) {
+        PlayerUtil.sendPacket(p, new CommandsPacket(node));
+    }
+
+    public static void syncCommand(RootCommandNode<?> node) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            syncCommand(p, node);
+        }
     }
 
     public static World getWorld(CommandSender sender) {

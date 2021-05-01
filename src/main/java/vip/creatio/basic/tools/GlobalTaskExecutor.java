@@ -6,6 +6,8 @@ public interface GlobalTaskExecutor extends TaskExecutor {
 
     void addOnUnloadTask(Runnable task);
 
+    void addPostWorldTask(Runnable task);
+
     default void removeOnLoadTask(Runnable task) {
         throw new UnsupportedOperationException("operation unsupported!");
     }
@@ -13,5 +15,15 @@ public interface GlobalTaskExecutor extends TaskExecutor {
     default void removeOnUnloadTask(Runnable task) {
         throw new UnsupportedOperationException("operation unsupported!");
     }
+
+    default void removePostWorldTask(Runnable task) {
+        throw new UnsupportedOperationException("operation unsupported!");
+    }
+
+    void onLoad();
+
+    void onUnload();
+
+    void onPostWorld();
 
 }

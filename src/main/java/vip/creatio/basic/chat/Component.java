@@ -48,6 +48,14 @@ public class Component implements Iterable<Component>, Message, Wrapper<IChatBas
         return new TextComponent(Long.toString(val));
     }
 
+    public static Component translate(String translateId) {
+        return new TranslatableComponent(translateId);
+    }
+
+    public static Component translate(String translateId, Object... args) {
+        return new TranslatableComponent(translateId, args);
+    }
+
     public Component setStyle(ChatStyle style) {
         component.setChatModifier(style.unwrap());
         return this;
@@ -202,7 +210,11 @@ public class Component implements Iterable<Component>, Message, Wrapper<IChatBas
     }
 
     public Component withColor(@Nullable Color color) {
-        return withColor(color.asRGB());
+        return withStyle(getStyle().withColor(color));
+    }
+
+    public Component withItalic(@Nullable Boolean bool) {
+        return withStyle(getStyle().withItalic(bool));
     }
 
     public Component withBold(@Nullable Boolean bool) {
@@ -277,6 +289,17 @@ public class Component implements Iterable<Component>, Message, Wrapper<IChatBas
         if (color != null) sb.append('§').append(ChatFormat.getNearest(color.getRGB()).getCharacter());
         sb.append(getContents());
         getSiblings().forEach(c -> appendSingleLine(sb));
+    }
+
+    public static Component wrap(@Nullable com.mojang.brigadier.Message msg) {
+        if (msg == null) return null;
+        if (msg instanceof IChatBaseComponent) {
+            return wrap((IChatBaseComponent) msg);
+        }
+        if (msg instanceof Component) {
+            return (Component) msg;
+        }
+        return of(msg.getString());
     }
 
     public static Component wrap(@Nullable IChatBaseComponent raw) {

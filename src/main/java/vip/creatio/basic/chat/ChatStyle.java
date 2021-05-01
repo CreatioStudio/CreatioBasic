@@ -1,5 +1,6 @@
 package vip.creatio.basic.chat;
 
+import org.bukkit.Color;
 import vip.creatio.basic.tools.Wrapper;
 import net.minecraft.server.ChatClickable;
 import net.minecraft.server.ChatHoverable;
@@ -80,6 +81,11 @@ public class ChatStyle implements Wrapper<ChatModifier> {
 
     public ChatStyle withColor(@Nullable ChatFormat legacyColor) {
         this.modifier = modifier.setColor(legacyColor == null ? null : legacyColor.unwrap());
+        return this;
+    }
+
+    public ChatStyle withColor(@Nullable Color color) {
+        this.modifier = modifier.setColor(color == null ? null : ChatColor.fromRgb(color.asRGB()).unwrap());
         return this;
     }
 

@@ -1,45 +1,47 @@
 package vip.creatio.basic.cmd;
 
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandExceptionType;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import net.minecraft.server.CommandListenerWrapper;
+import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.command.CommandSender;
-import vip.creatio.basic.chat.Component;
-import vip.creatio.basic.util.NMS;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Predicate;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class Argument {
 
-    protected static final Message defaultErrMsg = Component.of("Failed to execute command.");
-
-    protected final ArgumentBuilder<CommandListenerWrapper, ? extends ArgumentBuilder<CommandListenerWrapper, ?>> builder;
+    protected final RootCommandNode arguments = new RootCommandNode<>();
     protected CommandAction command;
-    protected Predicate<CommandSender> requirement;
+    protected Predicate<CommandSender> requirement = s -> true;
+    protected CommandNode<?> target;
+    protected RedirectSource redirectSource;
+    protected boolean forks;
 
-    protected Argument(ArgumentBuilder<CommandListenerWrapper, ? extends ArgumentBuilder<CommandListenerWrapper, ?>> builder) {
-        this.builder = builder;
-    }
+    protected FallbackAction[] fallback = new FallbackAction[]{DefaultFallbackAction.DEFAULT};
 
     public CommandAction getCommand() {
         return command;
     }
 
     public Argument then(Argument argument) {
-        builder.then(argument.builder);
-        return this;
+        if (target != null) {
+            throw new IllegalStateException("Cannot add children to a redirected node");
+        } else {
+            arguments.addChild(argument.internalBuild(fallback));
+            return this;
+        }
     }
 
-
     public Argument then(CommandNode<?> argument) {
-        builder.then((CommandNode<CommandListenerWrapper>) argument);
-        return this;
+        if (this.target != null) {
+            throw new IllegalStateException("Cannot add children to a redirected node");
+        } else {
+            this.arguments.addChild(argument);
+            return this;
+        }
     }
 
     public static LiteralArgument of(String option) {
@@ -51,48 +53,76 @@ public abstract class Argument {
     }
 
     public Collection<CommandNode<?>> getArguments() {
-        return (Collection) builder.getArguments();
+        return arguments.getChildren();
     }
 
     public Argument executes(CommandAction command) {
-        builder.executes(c -> {
-            Content content = new Content(c, defaultErrMsg);
-            try {
-                if (command.run(content)) {
-                    return 1;
-                } else {
-                    throw new CommandSyntaxException(new CommandExceptionType(){}, content.getErrMessage());
-                }
-            } catch (CommandSyntaxException e) {
-                throw e;
-            } catch (Throwable t) {
-                String errMsg = "Unhandled exception executing Brigadier command '" + c.getRootNode().getName() + "'!";
-                System.err.println(errMsg);
-                throw new CommandSyntaxException(new CommandExceptionType(){}, Component.of(errMsg));
-            }
-        });
+        this.command = command;
         return this;
+    }
+
+    public Argument executes(NilCommandAction command) {
+        return executes((CommandAction) command);
     }
 
     public Predicate<CommandSender> getRequirement() {
         return requirement;
     }
 
-    public Argument requires(Predicate<CommandSender> requirement) {
-        builder.requires(w -> requirement.test(NMS.toBukkit(w)));
+    public Argument fallbacks(FallbackAction fallback) {
+        this.fallback[0] = fallback;
+        return this;
+    }
+
+    public FallbackAction getFallback() {
+        return fallback[0];
+    }
+
+    public Argument requires(@NotNull Predicate<CommandSender> requirement) {
+        this.requirement = requirement;
         return this;
     }
 
     public CommandNode<?> getRedirect() {
-        return builder.getRedirect();
+        return target;
+    }
+
+    public RedirectSource getRedirectTarget() {
+        return redirectSource;
     }
 
     public Argument redirect(CommandNode<?> target) {
-        builder.redirect((CommandNode<CommandListenerWrapper>) target);
-        return this;
+        return this.forward(target, null, false);
     }
 
-    public CommandNode<?> build() {
-        return builder.build();
+    public Argument redirect(CommandNode<?> target, SingleRedirectSource redirectTo) {
+        return this.forward(target, redirectTo == null ? null : (o) -> Collections.singleton(redirectTo.apply(o)), false);
     }
+
+    public Argument fork(CommandNode<?> target, RedirectSource redirectTo) {
+        return forward(target, redirectTo, true);
+    }
+
+    public Argument forward(CommandNode<?> target, RedirectSource redirectTo, boolean fork) {
+        if (!this.arguments.getChildren().isEmpty()) {
+            throw new IllegalStateException("Cannot forward a node with children");
+        } else {
+            this.target = target;
+            this.redirectSource = redirectTo;
+            this.forks = fork;
+            return this;
+        }
+    }
+
+    protected abstract CommandNode<?> internalBuild(FallbackAction[] fallback);
+    public CommandNode<?> build() {
+        return internalBuild(new FallbackAction[]{DefaultFallbackAction.DEFAULT});
+    }
+
+    protected final void addNodes(CommandNode<?> n) {
+        for (CommandNode node : getArguments()) {
+            n.addChild(node);
+        }
+    }
+
 }

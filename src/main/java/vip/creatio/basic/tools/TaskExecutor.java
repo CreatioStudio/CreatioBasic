@@ -27,7 +27,4 @@ public interface TaskExecutor {
 
     void start();
 
-    void onLoad();
-
-    void onUnload();
 }
