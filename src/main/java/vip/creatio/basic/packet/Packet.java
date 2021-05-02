@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import vip.creatio.common.ReflectionException;
+import vip.creatio.common.util.ReflectionException;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;

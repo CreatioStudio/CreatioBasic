@@ -1,4 +1,4 @@
-package vip.creatio.basic.annotation;
+package vip.creatio.basic.tools;
 
 public enum TaskType {
 

@@ -1,7 +1,7 @@
 package vip.creatio.basic.packet.out;
 
 import vip.creatio.basic.packet.Packet;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import net.minecraft.server.PacketPlayOutEntity;

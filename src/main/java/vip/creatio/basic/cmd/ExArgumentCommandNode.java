@@ -26,66 +26,73 @@ final class ExArgumentCommandNode<T> extends ArgumentCommandNode<CommandListener
             Reflection.field(CommandNode.class, "command");
 
     private final CommandAction command;
-    private final FallbackAction[] fallback;
+    private final RedirectSource redirectSource;
+    private final Argument.Inheritable inheritable;
+    private final boolean restricted;
 
     @SuppressWarnings("unchecked")
     public ExArgumentCommandNode(@NotNull String name,
                                  @NotNull ArgumentType<T> type,
                                  @Nullable CommandAction command,
-                                 @NotNull Predicate<CommandSender> requirement,
+                                 @NotNull Argument.Inheritable inheritable,
                                  @Nullable CommandNode<?> redirect,
                                  @Nullable RedirectSource modifier,
                                  boolean forks,
                                  @Nullable SuggestionProvider suggestions,
-                                 @NotNull FallbackAction[] fallback) {
-        super(name, (ArgumentType<T>) ArgumentTypes.unwrap(type), null, w -> requirement.test(NMS.toBukkit(w)),
+                                 boolean restricted) {
+        super(name, (ArgumentType<T>) ArgumentTypes.unwrap(type), null, restricted ? w -> inheritable.required[0].test(NMS.toBukkit(w)) : w -> true ,
                 (CommandNode<CommandListenerWrapper>) redirect,
                 modifier == null ? null : c -> modifier.apply(new Context(c)).stream().map(NMS::toNms).collect(Collectors.toList()),
                 forks, suggestions == null ? null : (c, b) -> suggestions.getSuggestions(new Context(c), b));
-        if (command != null) COMMAND.set(this, this::executeAction);
+        if (command != null) COMMAND.set(this, ExCommandNode.super::executeAction);
         this.command = command;
-        this.fallback = fallback;
-    }
-
-    private int executeAction(CommandContext<CommandListenerWrapper> c) throws CommandSyntaxException {
-        Context context = new Context(c);
-        try {
-            if (command != null && command.run(context)) {
-                return 1;
-            } else {
-                fallback[0].failed(context);
-            }
-        } catch (CommandSyntaxException e) {
-            fallback[0].failed(context);
-        } catch (Throwable t) {
-            fallback[0].exception(context, t);
-        }
-
-        return 0;
+        this.inheritable = inheritable;
+        this.redirectSource = modifier;
+        this.restricted = restricted;
     }
 
     @Override
     public CompletableFuture<Suggestions>
     listSuggestions(CommandContext<CommandListenerWrapper> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        if (canUse(context.getSource())) {
+        if (accessiblyTestSilent(NMS.toBukkit(context.getSource()))) {
             return super.listSuggestions(context, builder);
         }
         return builder.buildFuture();
     }
 
-    // CraftBukkit affiliates
     @Override
-    public synchronized boolean canUse(CommandListenerWrapper source) {
-        //TODO: weird logic
-        if (!super.canUse(source)) {
-            fallback[0].noPermission(NMS.toBukkit(source));
-            return false;
-        }
-        return true;
+    public FallbackAction getFallback() {
+        return inheritable.fallback[0];
+    }
+
+    public CommandAction getCommandAction() {
+        return command;
+    }
+
+    public RedirectSource getRedirectSource() {
+        return redirectSource;
+    }
+
+    public Predicate<CommandSender> getSenderPredicate() {
+        return inheritable.required[0];
+    }
+
+    public Predicate<SenderType> getRequiredSenderType() {
+        return inheritable.reqType[0];
     }
 
     @Override
-    public FallbackAction getFallback() {
-        return fallback[0];
+    public CommandNode<?> getNode() {
+        return this;
+    }
+
+    @Override
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    @Override
+    public Argument.Inheritable getInheritable() {
+        return inheritable;
     }
 }

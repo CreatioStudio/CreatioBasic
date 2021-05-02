@@ -28,9 +28,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="SpigotMinecraft SDK" level="application" />
-    <orderEntry type="module" module-name="Accessor" />
-    <orderEntry type="module" module-name="Common" />
     <orderEntry type="library" name="Jetbrains Annotation 19.0.0" level="application" />
     <orderEntry type="library" name="Groovy" level="application" />
+    <orderEntry type="module" module-name="Common" />
+    <orderEntry type="module" module-name="Accessor" />
+    <orderEntry type="library" name="Maven: io.netty:netty-all:4.1.63.Final" level="project" />
   </component>
 </module>

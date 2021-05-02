@@ -7,7 +7,7 @@ import vip.creatio.basic.packet.Packet;
 import net.minecraft.server.PacketPlayOutEntityTeleport;
 import org.bukkit.entity.Entity;
 import vip.creatio.basic.util.NMS;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 
 public class EntityTeleportPacket extends Packet<PacketPlayOutEntityTeleport> {
 

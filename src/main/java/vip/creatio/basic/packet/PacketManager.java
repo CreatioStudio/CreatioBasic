@@ -1,7 +1,7 @@
 package vip.creatio.basic.packet;
 
-import vip.creatio.common.Mth;
-import vip.creatio.common.Pair;
+import vip.creatio.common.util.Mth;
+import vip.creatio.common.collection.Pair;
 import vip.creatio.basic.util.PlayerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

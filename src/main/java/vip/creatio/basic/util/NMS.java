@@ -33,7 +33,7 @@ import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.math.Vec2;
 import vip.creatio.basic.packet.VirtualEntity;
-import vip.creatio.common.SysUtil;
+import vip.creatio.common.util.SysUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +42,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Nms <-> Bukkit, CraftBukkit <-> Bukkit, Wrapper <-> Raw conversion library
+ * Instance conversion factory
+ *
+ * Nms <-> Bukkit, CraftBukkit <-> Bukkit, Wrapper <-> Raw
  *
  * Method naming in this class:
  * Nms -> Wrapper       to*WrapperName*()
@@ -52,6 +54,10 @@ import java.util.stream.Collectors;
  * Any -> Wrapper       to*WrapperName*TypeName*()
  *
  * NOTE: should not be used by plugin without NmsClassLoader.
+ * Even though you don't need to import NMS class when converting
+ * objects through the use of this class, but the NMS class name
+ * will still appear in the bytecodes of your compiled class files!
+ *
  * <-UNSAFE->
  */
 public final class NMS {

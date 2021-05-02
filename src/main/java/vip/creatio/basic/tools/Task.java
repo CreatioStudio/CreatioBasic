@@ -1,4 +1,4 @@
-package vip.creatio.basic.annotation;
+package vip.creatio.basic.tools;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,15 +1,13 @@
-package vip.creatio.basic.annotation.processor;
+package vip.creatio.basic.tools;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import vip.creatio.basic.annotation.Listener;
 import vip.creatio.basic.CLibBasic;
 import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.packet.PacketHandler;
 import vip.creatio.basic.packet.PacketListener;
-import vip.creatio.basic.tools.ListenerRegister;
 import vip.creatio.accessor.annotation.AnnotationProcessor;
-import vip.creatio.common.ReflectUtil;
+import vip.creatio.common.util.ReflectUtil;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

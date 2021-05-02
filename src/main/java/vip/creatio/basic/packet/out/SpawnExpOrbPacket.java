@@ -6,7 +6,7 @@ import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.util.BukkitUtil;
 import vip.creatio.basic.util.EntityUtil;
 import vip.creatio.basic.util.NMS;
-import vip.creatio.common.SysUtil;
+import vip.creatio.common.util.SysUtil;
 import net.minecraft.server.EntityExperienceOrb;
 import net.minecraft.server.PacketPlayOutSpawnEntityExperienceOrb;
 import org.bukkit.Location;

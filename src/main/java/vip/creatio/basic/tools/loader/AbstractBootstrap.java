@@ -1,7 +1,7 @@
 package vip.creatio.basic.tools.loader;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import vip.creatio.common.ReflectUtil;
+import vip.creatio.common.util.ReflectUtil;
 
 import java.lang.reflect.Constructor;
 import java.util.List;

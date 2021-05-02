@@ -1,7 +1,7 @@
-package vip.creatio.basic.annotation.processor;
+package vip.creatio.basic.cmd;
 
 import vip.creatio.accessor.annotation.AnnotationProcessor;
-import vip.creatio.basic.annotation.Command;
+import vip.creatio.basic.cmd.Command;
 
 import java.lang.reflect.Method;
 

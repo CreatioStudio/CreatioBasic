@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import vip.creatio.basic.nbt.CompoundTag;
 import vip.creatio.basic.packet.out.CommandsPacket;
-import vip.creatio.common.Pair;
+import vip.creatio.common.collection.Pair;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.*;
 import org.bukkit.*;
@@ -17,7 +17,7 @@ import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
-import vip.creatio.common.ReflectUtil;
+import vip.creatio.common.util.ReflectUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -169,13 +169,14 @@ public final class BukkitUtil {
     }
 
     /** Send a command map packet to sync command set with player, bypasses PlayerCommandsEvent */
-    public static void syncCommand(Player p, RootCommandNode<?> node) {
-        PlayerUtil.sendPacket(p, new CommandsPacket(node));
+    public static void syncCommand(Player p) {
+        getServer().getCommandDispatcher().a(NMS.toNms(p));
+        //PlayerUtil.sendPacket(p, new CommandsPacket(node));
     }
 
-    public static void syncCommand(RootCommandNode<?> node) {
+    public static void syncCommand() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            syncCommand(p, node);
+            syncCommand(p);
         }
     }
 

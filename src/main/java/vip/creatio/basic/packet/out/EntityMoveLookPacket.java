@@ -1,7 +1,7 @@
 package vip.creatio.basic.packet.out;
 
 import vip.creatio.basic.internal.Wrapped;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 import net.minecraft.server.PacketPlayOutEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;

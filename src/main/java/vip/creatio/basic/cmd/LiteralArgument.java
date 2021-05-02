@@ -42,7 +42,7 @@ public class LiteralArgument extends Argument {
     }
 
     @Override
-    public LiteralArgument executes(NilCommandAction command) {
+    public LiteralArgument executes(CommandAction.Nil command) {
         return executes((CommandAction) command);
     }
 
@@ -77,15 +77,36 @@ public class LiteralArgument extends Argument {
     }
 
     @Override
-    public LiteralArgument fallbacks(FallbackAction fallback) {
+    public LiteralArgument fallbacks(@NotNull FallbackAction fallback) {
         super.fallbacks(fallback);
         return this;
     }
 
     @Override
-    public LiteralCommandNode<?> internalBuild(FallbackAction[] fallback) {
-        if (this.fallback[0] != DefaultFallbackAction.DEFAULT) fallback = this.fallback;
-        ExLiteralCommandNode result = new ExLiteralCommandNode(literal, command, requirement, target, redirectSource, forks, fallback);
+    public LiteralArgument requiresSenderType(@NotNull Predicate<SenderType> requirement) {
+        super.requiresSenderType(requirement);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument requiresSenderType(SenderType... types) {
+        super.requiresSenderType(types);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument restricted(boolean restricted) {
+        super.restricted(restricted);
+        return this;
+    }
+
+    @Override
+    public LiteralCommandNode<?> internalBuild(Inheritable parent) {
+        if (parent != null) {
+            inheritable.inheritFrom(parent);
+        }
+        ExLiteralCommandNode result = new ExLiteralCommandNode(literal, command, inheritable, target, redirectSource,
+                forks, restricted);
 
         addNodes(result);
 

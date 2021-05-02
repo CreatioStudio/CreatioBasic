@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import vip.creatio.basic.annotation.Listener;
+import vip.creatio.basic.tools.Listener;
 
 import java.util.ArrayList;
 import java.util.List;

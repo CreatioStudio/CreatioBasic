@@ -11,7 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import vip.creatio.basic.util.MthUtil;
 import vip.creatio.basic.util.NMS;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 
 import java.util.UUID;
 

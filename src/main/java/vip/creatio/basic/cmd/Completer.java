@@ -1,4 +1,4 @@
-package vip.creatio.basic.annotation;
+package vip.creatio.basic.cmd;
 
 public @interface Completer {
 

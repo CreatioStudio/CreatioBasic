@@ -16,7 +16,7 @@ import vip.creatio.accessor.Func;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.basic.tools.Wrapper;
 import vip.creatio.basic.util.NMS;
-import vip.creatio.common.Pair;
+import vip.creatio.common.collection.Pair;
 
 import java.util.List;
 import java.util.UUID;

@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 
 import java.util.Random;
 

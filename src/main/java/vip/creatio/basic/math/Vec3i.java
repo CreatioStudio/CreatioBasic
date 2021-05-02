@@ -10,7 +10,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.basic.tools.Wrapper;
 import vip.creatio.basic.util.NMS;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 import vip.creatio.common.annotation.Immutable;
 
 /**

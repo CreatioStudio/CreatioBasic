@@ -8,13 +8,15 @@ import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.server.CommandListenerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.*;
+import org.bukkit.command.Command;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.help.GenericCommandHelpTopic;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
-import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.util.NMS;
 
 import java.util.*;
@@ -29,28 +31,33 @@ import java.util.function.Predicate;
 public class BrigadierCommand extends BukkitCommand {
 
     private static final Var<CommandMap> COMMAND_MAP = Reflection.field(Command.class, "commandMap");
+    public static final List<String> EMPTY = Collections.emptyList();
 
     private final LiteralCommandNode<CommandListenerWrapper> command;
-    private final Predicate<? super CommandSender> permissionTest;
+    private final Predicate<CommandSender> permissionTest;
     private final CommandRegister register;
-    private final boolean showInHelp;
+    private final boolean showInHelpList;
+
+    private final FallbackAction action;
 
     public BrigadierCommand(CommandRegister register,
                             LiteralCommandNode<CommandListenerWrapper> command,
                             String description,
                             List<String> aliases,
-                            Predicate<? super CommandSender> permissionTest,
-                            boolean showInHelp) {
+                            boolean showInHelpList) {
         super(command.getName(), description, command.getUsageText(), aliases);
         this.command = command;
-        this.permissionTest = permissionTest;
         this.register = register;
-        this.showInHelp = showInHelp;
+        this.showInHelpList = showInHelpList;
+        this.action = command instanceof ExCommandNode ? ((ExCommandNode) command).getFallback() : FallbackAction.DEFAULT;
+        this.permissionTest = command instanceof ExCommandNode
+                ? ((ExCommandNode) command)::accessiblyTestSilent
+                : c -> command.getRequirement().test(NMS.toNms(c));
     }
 
     // Called when CommandManager register the command
     protected void onRegister() {
-
+        if (showInHelpList) Bukkit.getServer().getHelpMap().addTopic(new GenericCommandHelpTopic(this));
     }
 
     // Since server's CommandDispatcher changes when server finished plugin loading, which is the time
@@ -63,11 +70,10 @@ public class BrigadierCommand extends BukkitCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, String[] args) {
-        if (!testPermission(sender) || !permissionTest.test(sender)) return true;
+        if (!testPermission(sender)) return true;
 
         CommandListenerWrapper nms = NMS.toNms(sender);
-        args[0] = commandLabel;
-        String cmd = connect(args, getName());
+        String cmd = connect(commandLabel, args);
 
         StringReader reader = new StringReader(cmd);
 
@@ -81,21 +87,18 @@ public class BrigadierCommand extends BukkitCommand {
             // Dispatch actual command
             getDispatcher().execute(parsed);
         } catch (CommandSyntaxException e) {
-            try {
-                // Invalid input processor
-                List<ParsedCommandNode<CommandListenerWrapper>> nodes = parsed.getContext().getNodes();
-                ParsedCommandNode<CommandListenerWrapper> last = nodes.get(nodes.size() - 1);
+            // No message output request
+            if (e == ExCommandNode.NO_MESSAGE) return true;
 
-                // If node is a ExLiteralCommandNode, which supports custom fallback, then use it's fallback
-                // else we use Minecraft's default fallback instead.
-                (last.getNode() instanceof ExCommandNode
-                        ? ((ExCommandNode) last.getNode()).getFallback()
-                        : DefaultFallbackAction.DEFAULT).invalidInput(new Context(parsed.getContext().build(cmd)), e);
-            } catch (CommandSyntaxException ee) {
-                // Final fallback
-                nms.sendFailureMessage(Component.wrap(e.getRawMessage()).unwrap());
-            }
-            return true;
+            // Invalid input processor
+            List<ParsedCommandNode<CommandListenerWrapper>> nodes = parsed.getContext().getNodes();
+            ParsedCommandNode<CommandListenerWrapper> last = nodes.get(nodes.size() - 1);
+
+            // If node is a ExLiteralCommandNode, which supports custom fallback, then use it's fallback
+            // else we use Minecraft's default fallback instead.
+            (last.getNode() instanceof ExCommandNode
+                    ? ((ExCommandNode) last.getNode()).getFallback()
+                    : FallbackAction.DEFAULT).invalidInput(new Context(parsed.getContext().build(cmd)), e);
         } catch (Exception e) {
             System.err.println("Exception while executing command " + commandLabel);
             e.printStackTrace();
@@ -112,8 +115,10 @@ public class BrigadierCommand extends BukkitCommand {
         Objects.requireNonNull(args, "Arguments cannot be null");
         Objects.requireNonNull(alias, "Alias cannot be null");
 
+        if (!testPermissionSilent(sender)) return EMPTY;
+
         CommandListenerWrapper nms = NMS.toNms(sender);
-        ParseResults<CommandListenerWrapper> parsed = getDispatcher().parse(connect(args, getName()), nms);
+        ParseResults<CommandListenerWrapper> parsed = getDispatcher().parse(connect(alias, args), nms);
 
         List<String> results = new ArrayList<>();
         getDispatcher().getCompletionSuggestions(parsed).thenAccept((suggestions) -> {
@@ -123,7 +128,22 @@ public class BrigadierCommand extends BukkitCommand {
         return results;
     }
 
-    private String connect(String[] args, String name) {
+    @Override
+    public boolean testPermission(@NotNull CommandSender target) {
+        if (testPermissionSilent(target)) {
+            return true;
+        } else {
+            action.noPermission(target);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean testPermissionSilent(@NotNull CommandSender target) {
+        return super.testPermissionSilent(target) && permissionTest.test(target);
+    }
+
+    private String connect(String name, String[] args) {
         return name + ((args.length > 0) ? " " + Joiner.on(' ').join(args) : "");
     }
 
@@ -137,5 +157,13 @@ public class BrigadierCommand extends BukkitCommand {
 
     public CommandMap getCommandMap() {
         return COMMAND_MAP.get(this);
+    }
+
+    public Predicate<? super CommandSender> getPermissionTest() {
+        return permissionTest;
+    }
+
+    public boolean showInHelpList() {
+        return showInHelpList;
     }
 }

@@ -59,7 +59,7 @@ public class RequiredArgument<T> extends Argument {
     }
 
     @Override
-    public RequiredArgument<T> executes(NilCommandAction command) {
+    public RequiredArgument<T> executes(CommandAction.Nil command) {
         return executes((CommandAction) command);
     }
 
@@ -76,14 +76,32 @@ public class RequiredArgument<T> extends Argument {
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected ArgumentCommandNode<?, T> internalBuild(FallbackAction[] fallback) {
-        if (this.fallback[0] != DefaultFallbackAction.DEFAULT) fallback = this.fallback;
-        ExArgumentCommandNode<T> result = new ExArgumentCommandNode<>(name, argumentType, command, requirement, target,
-                redirectSource, forks, suggestions, fallback);
+    public RequiredArgument<T> requiresSenderType(@NotNull Predicate<SenderType> requirement) {
+        super.requiresSenderType(requirement);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> requiresSenderType(SenderType... types) {
+        super.requiresSenderType(types);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> restricted(boolean restricted) {
+        super.restricted(restricted);
+        return this;
+    }
+
+    @Override
+    protected ArgumentCommandNode<?, T> internalBuild(Inheritable parent) {
+        if (parent != null) {
+            inheritable.inheritFrom(parent);
+        }
+        ExArgumentCommandNode<T> result = new ExArgumentCommandNode<>(name, argumentType, command, inheritable, target,
+                redirectSource, forks, suggestions, restricted);
 
         addNodes(result);
-
         return result;
     }
 

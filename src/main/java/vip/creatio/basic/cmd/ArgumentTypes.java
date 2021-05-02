@@ -97,6 +97,7 @@ public final class ArgumentTypes {
         RAW_TYPES.put(Coords.class, IVectorPosition.class);
     }
 
+    /** EntitySelectors, in order to see tab complete suggestions players need permission "minecraft.command.selector" */
     public static ArgumentType<EntitySelector> ofEntity() {
         return wrapArgument(ArgumentEntity.a /* entity */ ());
     }

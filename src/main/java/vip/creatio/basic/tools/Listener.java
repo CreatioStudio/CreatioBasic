@@ -1,4 +1,4 @@
-package vip.creatio.basic.annotation;
+package vip.creatio.basic.tools;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;

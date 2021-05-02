@@ -2,6 +2,7 @@ package vip.creatio.basic.cmd;
 
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
+import org.bukkit.permissions.ServerOperator;
 import org.bukkit.util.Vector;
 import vip.creatio.basic.CLibBasic;
 
@@ -40,12 +41,15 @@ public class TabCompleteHandler {
                 .then(Argument.of("query")
                         .then(Argument.of("daytime"))
                         .then(Argument.of("gametime"))
-                        .then(Argument.of("day")).then(Argument.arg("entity", ArgumentTypes.ofEntity()).executes(c -> {
+                        .then(Argument.of("day"))
+                        .then(Argument.arg("entity", ArgumentTypes.ofEntity()).executes(c -> {
                             Entity e = c.getArgument("entity", EntitySelector.class).findSingleEntity(c.getSource());
                             System.out.println(e);
                             e.setVelocity(new Vector(0, 3, 0));
                             return true;
-                        })));
+                        }))
+                        .requiresSenderType(SenderType.CONSOLE)
+                        .requires(ServerOperator::isOp));
 
         CLibBasic.getInstance().getCommandRegister().register(arg2, "Holy fucker!", Arrays.asList("aabb", "j2se"));
     }

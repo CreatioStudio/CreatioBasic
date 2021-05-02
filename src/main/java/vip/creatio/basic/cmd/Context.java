@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.util.BukkitUtil;
-import vip.creatio.common.ReflectUtil;
+import vip.creatio.common.util.ReflectUtil;
 
 import java.util.List;
 import java.util.Map;

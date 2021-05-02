@@ -5,7 +5,7 @@ import vip.creatio.accessor.annotation.AnnotationProcessor;
 import vip.creatio.accessor.annotation.DelegationProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPluginLoader;
-import vip.creatio.common.ReflectUtil;
+import vip.creatio.common.util.ReflectUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -13,10 +13,8 @@ import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 public class NmsClassLoader extends ReflectiveClassLoader {
 

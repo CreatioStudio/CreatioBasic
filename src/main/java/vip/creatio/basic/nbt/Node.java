@@ -1,6 +1,6 @@
 package vip.creatio.basic.nbt;
 
-import vip.creatio.common.StringUtil;
+import vip.creatio.common.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;

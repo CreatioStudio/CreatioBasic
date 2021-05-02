@@ -7,20 +7,17 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
-import vip.creatio.basic.annotation.Task;
-import vip.creatio.basic.annotation.TaskType;
+import vip.creatio.basic.tools.Task;
+import vip.creatio.basic.tools.TaskType;
 import vip.creatio.basic.util.BukkitUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * Brigadier implementation of CommandRegister instance, the required LiteralCommandNode can be get
@@ -138,11 +135,11 @@ public class CommandManager implements CommandRegister {
                             ? new ExLiteralCommandNode(
                                     label,
                                     ((ExLiteralCommandNode) node).getCommandAction(),
-                                    ((ExLiteralCommandNode) node).getPredicate(),
+                                    ((ExLiteralCommandNode) node).getInheritable(),
                                     node.getRedirect(),
                                     ((ExLiteralCommandNode) node).getRedirectSource(),
                                     node.isFork(),
-                                    new FallbackAction[]{((ExLiteralCommandNode) node).getFallback()})
+                                    ((ExLiteralCommandNode) node).isRestricted())
                             : new LiteralCommandNode(label, node.getCommand(), node.getRequirement(), node.getRedirect(),
                                     node.getRedirectModifier(), node.isFork());
 
@@ -157,7 +154,7 @@ public class CommandManager implements CommandRegister {
             }
         }
 
-        BukkitUtil.syncCommand(getRootNode());
+        BukkitUtil.syncCommand();
     }
 
     public SimpleCommandMap getCommandMap() {
@@ -176,23 +173,15 @@ public class CommandManager implements CommandRegister {
     public void register(@NotNull LiteralCommandNode<?> node,
                          @NotNull String description,
                          @NotNull List<String> aliases) {
-        register(node, description, aliases, p -> true);
+        register(node, description, aliases, true);
     }
 
     public void register(@NotNull LiteralCommandNode<?> node,
                          @NotNull String description,
                          @NotNull List<String> aliases,
-                         @NotNull Predicate<? super CommandSender> permissionTest) {
-        register(node, description, aliases, permissionTest, true);
-    }
-
-    public void register(@NotNull LiteralCommandNode<?> node,
-                         @NotNull String description,
-                         @NotNull List<String> aliases,
-                         @NotNull Predicate<? super CommandSender> permissionTest,
                          boolean showInHelp) {
         BrigadierCommand command = new BrigadierCommand(this,
-                (LiteralCommandNode) node, description, aliases, permissionTest, showInHelp);
+                (LiteralCommandNode) node, description, aliases, showInHelp);
 
         registeredCommand.put(node.getName(), command);
         for (String alias : aliases) {
@@ -207,6 +196,46 @@ public class CommandManager implements CommandRegister {
         }
     }
 
+    public List<BrigadierCommand> getCommands() {
+        return new ArrayList<>(registeredCommand.values());
+    }
+
+    /** Can be get through command name and aliases */
+    public BrigadierCommand getCommand(String name) {
+        return aliases.get(name);
+    }
+
+    public Map<String, String[]> getAliases() {
+        Map<String, String[]> map = new HashMap<>();
+        registeredCommand.forEach((s, b) -> map.put(s, b.getAliases().toArray(new String[0])));
+        return map;
+    }
+
+    /**
+     * CraftServer::enablePlugins do things in following order:
+     *
+     * enable all plugins (Plugin::onEnable)
+     *          \/
+     * wrap all vanilla command (registered child nodes in MinecraftServer::vanillaCommandDispatcher)
+     * into a BukkitCommand (VanillaCommandWrapper), and add default prefix "minecraft"
+     *          \/
+     * init, register and load all permissions
+     *          \/
+     * init help map (things in /help command)
+     *          \/
+     * set server's command dispatcher to a new one, to clear all old registered
+     *          \/
+     * iterate all registered Command in SimpleCommandMap
+     * if it's a VanillaCommandWrapper, then create aliases for it if needed.
+     * else create a BukkitCommandWrapper, add results into new dispatcher
+     *          \/
+     * send commands packet to player to update their command map
+     *          \/
+     * fire ServerLoadEvent
+     *
+     * To avoid letting server wrap commands into a vanilla one, or make it to
+     * a Bukkit command, we need to register them after everything was loaded.
+     */
     @Task(TaskType.POST_WORLD)
     static void onPostWorld() {
         cache = getCommandDispatcher0();
@@ -227,7 +256,7 @@ public class CommandManager implements CommandRegister {
                 mgr.onDisable();
             }
         }
-        BukkitUtil.syncCommand(getRootNode());
+        BukkitUtil.syncCommand();
     }
 
     private void initCommand() {

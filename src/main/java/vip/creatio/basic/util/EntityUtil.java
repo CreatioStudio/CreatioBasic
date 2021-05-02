@@ -3,7 +3,7 @@ package vip.creatio.basic.util;
 import vip.creatio.basic.util.damageSource.DmgSource;
 import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.nbt.CompoundTag;
-import vip.creatio.common.Mth;
+import vip.creatio.common.util.Mth;
 import vip.creatio.accessor.Func;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
