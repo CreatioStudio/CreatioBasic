@@ -1,6 +1,6 @@
 package vip.creatio.basic.tools;
 
-import vip.creatio.basic.CLibBasic;
+import vip.creatio.basic.CreatioBasic;
 import vip.creatio.common.util.ReflectUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -118,7 +118,7 @@ public class ListenerManager implements ListenerRegister {
                 }
             }
         } catch (Throwable t) {
-            CLibBasic.intern("Failed to register listener class " + mth.getDeclaringClass() + "! ");
+            CreatioBasic.intern("Failed to register listener class " + mth.getDeclaringClass() + "! ");
             t.printStackTrace();
         }
     }

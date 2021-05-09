@@ -11,10 +11,19 @@ import vip.creatio.basic.chat.ClickEvent;
 import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.util.NMS;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 public interface FallbackAction {
 
     Default DEFAULT = new Default();
+    Consumer<CommandSender> DEFAULT_INVALID_SENDER = DEFAULT::invalidSender;
+    Consumer<CommandSender> DEFAULT_NO_PERM = DEFAULT::noPermission;
+    Argument.SyntaxBiConsumer<Context, Throwable> DEFAULT_EXCEPTION = DEFAULT::exception;
+    Argument.SyntaxConsumer<Context> DEFAULT_FAILURE = DEFAULT::failure;
+    BiConsumer<Context, CommandSyntaxException> DEFAULT_INVALID_INPUT = DEFAULT::invalidInput;
 
+    CommandSyntaxException NO_MESSAGE = new CommandSyntaxException(new CommandExceptionType(){}, Component.create());
 
     /**
      * Called when CommandAction returns false,
@@ -93,7 +102,7 @@ public interface FallbackAction {
 
         @Override
         public void invalidInput(Context context, CommandSyntaxException e) {
-            sendFailureMessage(context.getSource(), Component.wrap(e.getRawMessage()));
+            sendFailureMessage(context.getSender(), Component.wrap(e.getRawMessage()));
             if (e.getInput() != null && e.getCursor() >= 0) {
                 int maxLen = Math.min(context.getInput().length(), e.getCursor());
                 Component comp = Component.create().withColor(ChatFormat.GRAY).withClickEvent(ClickEvent.suggestCmd(context.getLabel()));
@@ -110,7 +119,7 @@ public interface FallbackAction {
                 }
 
                 comp.append(Component.translate("command.context.here").withItalic(true).withColor(ChatFormat.GOLD));
-                sendFailureMessage(context.getSource(), comp);
+                sendFailureMessage(context.getSender(), comp);
             }
         }
 
@@ -121,8 +130,9 @@ public interface FallbackAction {
 
         @Override
         public void exception(Context context, Throwable exception) throws CommandSyntaxException {
-            String errMsg = "Unhandled exception executing Brigadier command '" + context.getRootNode().getName() + "'!";
+            String errMsg = "Unhandled exception executing Brigadier command '" + context.getLabel() + "'!";
             System.err.println(errMsg);
+            exception.printStackTrace();
             throw reportFailure(errMsg);
         }
 

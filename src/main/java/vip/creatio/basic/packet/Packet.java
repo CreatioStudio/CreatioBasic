@@ -4,9 +4,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import vip.creatio.accessor.Func;
 import vip.creatio.accessor.Reflection;
+import vip.creatio.basic.SharedConstants;
 import vip.creatio.basic.internal.CLibBasicBootstrap;
 import vip.creatio.basic.internal.Wrapped;
-import vip.creatio.basic.CLibBasic;
+import vip.creatio.basic.CreatioBasic;
 import vip.creatio.basic.tools.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -36,7 +37,7 @@ import java.util.function.BiConsumer;
 @SuppressWarnings("unchecked")
 public abstract class Packet<T extends net.minecraft.server.Packet<?>> implements Wrapper<T> {
 
-    private static final PacketManager MANAGER = CLibBasic.getInstance().getPacketManager();
+    private static final PacketManager MANAGER = CreatioBasic.getInstance().getPacketManager();
 
     private static final BiMap<Class<? extends net.minecraft.server.Packet<?>>, Class<? extends Packet<?>>> IN_PACKET =
             HashBiMap.create();
@@ -47,7 +48,7 @@ public abstract class Packet<T extends net.minecraft.server.Packet<?>> implement
     private static final Map<Class<? extends net.minecraft.server.Packet<?>>, Func<? extends Packet<?>>> WRAPPER = new HashMap<>();
 
     static {
-        CLibBasicBootstrap bootstrap = CLibBasic.getInstance().getBootstrap();
+        CLibBasicBootstrap bootstrap = CreatioBasic.getInstance().getBootstrap();
         BiConsumer<List<Class<?>>, BiMap<Class<? extends net.minecraft.server.Packet<?>>, Class<? extends Packet<?>>>>
                 addClass = (l, b) ->
         {
@@ -82,15 +83,15 @@ public abstract class Packet<T extends net.minecraft.server.Packet<?>> implement
                             Reflection.constructor((Class<Packet<?>>) pk, nmsClass));
                 } catch (ReflectionException e) {
                     if (e.getCause() instanceof NoSuchMethodException) {
-                        CLibBasic.intern("Can't find wrapper constructor in class " + pk.getName() + "!");
+                        CreatioBasic.intern("Can't find wrapper constructor in class " + pk.getName() + "!");
                     } else {
                         e.getCause().printStackTrace();
                     }
                 }
             }
         };
-        addClass.accept(bootstrap.getClassUnder("vip.creatio.clib.basic.packet.in"), IN_PACKET);
-        addClass.accept(bootstrap.getClassUnder("vip.creatio.clib.basic.packet.out"), OUT_PACKET);
+        addClass.accept(bootstrap.getClassUnder(SharedConstants.PACKET_IN_PKG), IN_PACKET);
+        addClass.accept(bootstrap.getClassUnder(SharedConstants.PACKET_OUT_PKG), OUT_PACKET);
     }
 
     /** Used to convert packet */

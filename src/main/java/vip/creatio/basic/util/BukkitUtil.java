@@ -1,13 +1,16 @@
 package vip.creatio.basic.util;
 
 import com.google.common.collect.HashBiMap;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.World;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import vip.creatio.basic.nbt.CompoundTag;
+import vip.creatio.basic.nbt.NBTTag;
 import vip.creatio.basic.packet.out.CommandsPacket;
 import vip.creatio.common.collection.Pair;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -26,8 +29,10 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 public final class BukkitUtil {
 
@@ -39,15 +44,6 @@ public final class BukkitUtil {
     public static final String VERSION = Bukkit.getServer().getClass().getPackage().getName().substring(23);
     public static final String NMS_PKG_NAME = "net.minecraft.server." + VERSION;
     public static final String CB_PKG_NAME = "org.bukkit.craftbukkit." + VERSION;
-
-
-    public static CompoundTag parseNbt(String nbt) {
-        try {
-            return new CompoundTag(MojangsonParser.parse(nbt));
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
     // EntityTypes
@@ -158,6 +154,12 @@ public final class BukkitUtil {
 
     public static final WorldServer DEFAULT_WORLD = NMS.toNms(Bukkit.getWorlds().get(0));
 
+    public static List<NBTTag> parseNBTPath(@NotNull NBTTag root, @NotNull String path) throws CommandSyntaxException {
+        return ArgumentNBTKey.a().parse(new StringReader(path)).a(root.unwrap()).stream().map((Function<? super NBTBase, NBTTag>) NBTTag::wrap).collect(Collectors.toList());
+    }
+
+
+
     // Server
 
     public static DedicatedServer getServer() {
@@ -178,6 +180,18 @@ public final class BukkitUtil {
         for (Player p : Bukkit.getOnlinePlayers()) {
             syncCommand(p);
         }
+    }
+
+    private static final Map<String, Command> knownCommands = ReflectUtil.get(SimpleCommandMap.class, "knownCommands", getCommandMap());
+
+    public static void unregisterCommand(Command cmd) {
+        knownCommands.remove(cmd.getName());
+        knownCommands.remove(cmd.getLabel() + cmd.getName());
+        for (String alias : cmd.getAliases()) {
+            knownCommands.remove(alias);
+            knownCommands.remove(cmd.getLabel() + alias);
+        }
+        cmd.unregister(getCommandMap());
     }
 
     public static World getWorld(CommandSender sender) {

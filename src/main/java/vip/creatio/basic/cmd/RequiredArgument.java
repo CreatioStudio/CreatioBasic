@@ -1,11 +1,14 @@
 package vip.creatio.basic.cmd;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class RequiredArgument<T> extends Argument {
@@ -94,11 +97,47 @@ public class RequiredArgument<T> extends Argument {
     }
 
     @Override
-    protected ArgumentCommandNode<?, T> internalBuild(Inheritable parent) {
+    public RequiredArgument<T> fallbacks(@NotNull FallbackAction fallback) {
+        super.fallbacks(fallback);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> fallbacksFailure(@NotNull SyntaxConsumer<Context> action) {
+        super.fallbacksFailure(action);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> fallbacksInvalidInput(@NotNull BiConsumer<Context, CommandSyntaxException> action) {
+        super.fallbacksInvalidInput(action);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> fallbacksException(@NotNull SyntaxBiConsumer<Context, Throwable> action) {
+        super.fallbacksException(action);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> fallbacksNoPermission(@NotNull Consumer<CommandSender> action) {
+        super.fallbacksNoPermission(action);
+        return this;
+    }
+
+    @Override
+    public RequiredArgument<T> fallbacksInvalidSender(@NotNull Consumer<CommandSender> action) {
+        super.fallbacksInvalidSender(action);
+        return this;
+    }
+
+    @Override
+    protected ArgumentCommandNode<?, T> internalBuild(InheritedData parent) {
         if (parent != null) {
-            inheritable.inheritFrom(parent);
+            inherit.inheritFrom(parent);
         }
-        ExArgumentCommandNode<T> result = new ExArgumentCommandNode<>(name, argumentType, command, inheritable, target,
+        ExArgumentCommandNode<T> result = new ExArgumentCommandNode<>(name, argumentType, command, inherit, target,
                 redirectSource, forks, suggestions, restricted);
 
         addNodes(result);

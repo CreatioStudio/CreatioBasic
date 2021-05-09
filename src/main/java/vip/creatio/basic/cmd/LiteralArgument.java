@@ -1,10 +1,14 @@
 package vip.creatio.basic.cmd;
 
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class LiteralArgument extends Argument {
@@ -83,6 +87,36 @@ public class LiteralArgument extends Argument {
     }
 
     @Override
+    public LiteralArgument fallbacksFailure(@NotNull SyntaxConsumer<Context> action) {
+        super.fallbacksFailure(action);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fallbacksInvalidInput(@NotNull BiConsumer<Context, CommandSyntaxException> action) {
+        super.fallbacksInvalidInput(action);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fallbacksException(@NotNull SyntaxBiConsumer<Context, Throwable> action) {
+        super.fallbacksException(action);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fallbacksNoPermission(@NotNull Consumer<CommandSender> action) {
+        super.fallbacksNoPermission(action);
+        return this;
+    }
+
+    @Override
+    public LiteralArgument fallbacksInvalidSender(@NotNull Consumer<CommandSender> action) {
+        super.fallbacksInvalidSender(action);
+        return this;
+    }
+
+    @Override
     public LiteralArgument requiresSenderType(@NotNull Predicate<SenderType> requirement) {
         super.requiresSenderType(requirement);
         return this;
@@ -101,11 +135,11 @@ public class LiteralArgument extends Argument {
     }
 
     @Override
-    public LiteralCommandNode<?> internalBuild(Inheritable parent) {
+    protected LiteralCommandNode<?> internalBuild(InheritedData parent) {
         if (parent != null) {
-            inheritable.inheritFrom(parent);
+            inherit.inheritFrom(parent);
         }
-        ExLiteralCommandNode result = new ExLiteralCommandNode(literal, command, inheritable, target, redirectSource,
+        ExLiteralCommandNode result = new ExLiteralCommandNode(literal, command, inherit, target, redirectSource,
                 forks, restricted);
 
         addNodes(result);

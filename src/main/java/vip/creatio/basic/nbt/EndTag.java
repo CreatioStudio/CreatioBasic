@@ -2,7 +2,7 @@ package vip.creatio.basic.nbt;
 
 import net.minecraft.server.NBTTagEnd;
 
-public class EndTag implements NBTTag<NBTTagEnd> {
+public class EndTag implements NBTTag {
 
     public static final EndTag INSTANCE = new EndTag();
 

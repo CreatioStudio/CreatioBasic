@@ -24,4 +24,9 @@ public class IntTag extends NumbericTag<NBTTagInt> {
     public NBTType getType() {
         return NBTType.INT;
     }
+
+    @Override
+    public Class<? extends NBTTagInt> wrappedClass() {
+        return NBTTagInt.class;
+    }
 }

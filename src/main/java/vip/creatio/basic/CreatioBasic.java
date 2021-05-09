@@ -8,13 +8,13 @@ import vip.creatio.basic.cmd.TabCompleteHandler;
 import vip.creatio.basic.tools.loader.AbstractBootstrap;
 import vip.creatio.basic.tools.loader.DelegatedPlugin;
 
-public final class CLibBasic extends DelegatedPlugin {
+public final class CreatioBasic extends DelegatedPlugin {
 
-    private static CLibBasic        instance;
+    private static CreatioBasic     instance;
 
-    private PacketManager packetManager;
+    private PacketManager           packetManager;
 
-    protected CLibBasic(AbstractBootstrap bootstrap) {
+    protected CreatioBasic(AbstractBootstrap bootstrap) {
         super(bootstrap);
         instance = this;
         this.packetManager = new PacketManager();
@@ -46,7 +46,7 @@ public final class CLibBasic extends DelegatedPlugin {
         return packetManager;
     }
 
-    public static CLibBasic getInstance() {
+    public static CreatioBasic getInstance() {
         return instance;
     }
 

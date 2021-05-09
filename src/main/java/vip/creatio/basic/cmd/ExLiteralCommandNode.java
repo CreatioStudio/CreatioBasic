@@ -25,24 +25,24 @@ final class ExLiteralCommandNode extends LiteralCommandNode<CommandListenerWrapp
 
     private final CommandAction command;
     private final RedirectSource redirectSource;
-    private final Argument.Inheritable inheritable;
+    private final Argument.InheritedData inherit;
     private final boolean restricted;
 
     @SuppressWarnings("unchecked")
     ExLiteralCommandNode(@NotNull String literal,
                          @Nullable CommandAction command,
-                         @NotNull Argument.Inheritable inheritable,
+                         @NotNull Argument.InheritedData inherit,
                          @Nullable CommandNode<?> redirect,
                          @Nullable RedirectSource modifier,
                          boolean forks,
                          boolean restricted) {
-        super(literal, null, restricted ? w -> inheritable.required[0].test(NMS.toBukkit(w)) : w -> true,
+        super(literal, null, restricted ? w -> inherit.getRequirement().test(NMS.toBukkit(w)) : w -> true,
                 (CommandNode<CommandListenerWrapper>) redirect,
                 modifier == null ? null : c -> modifier.apply(new Context(c)).stream().map(NMS::toNms).collect(Collectors.toList()),
                 forks);
         if (command != null) COMMAND.set(this, ExCommandNode.super::executeAction);
         this.command = command;
-        this.inheritable = inheritable;
+        this.inherit = inherit;
         this.redirectSource = modifier;
         this.restricted = restricted;
     }
@@ -57,7 +57,7 @@ final class ExLiteralCommandNode extends LiteralCommandNode<CommandListenerWrapp
 
     @Override
     public FallbackAction getFallback() {
-        return inheritable.fallback[0];
+        return inherit.fallback;
     }
 
     public CommandAction getCommandAction() {
@@ -69,11 +69,11 @@ final class ExLiteralCommandNode extends LiteralCommandNode<CommandListenerWrapp
     }
 
     public Predicate<CommandSender> getSenderPredicate() {
-        return inheritable.required[0];
+        return inherit.getRequirement();
     }
 
     public Predicate<SenderType> getRequiredSenderType() {
-        return inheritable.reqType[0];
+        return inherit.getSenderType();
     }
 
     @Override
@@ -87,7 +87,7 @@ final class ExLiteralCommandNode extends LiteralCommandNode<CommandListenerWrapp
     }
 
     @Override
-    public Argument.Inheritable getInheritable() {
-        return inheritable;
+    public Argument.InheritedData getInheritable() {
+        return inherit;
     }
 }

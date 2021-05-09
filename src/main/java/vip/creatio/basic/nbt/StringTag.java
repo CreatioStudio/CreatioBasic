@@ -2,7 +2,7 @@ package vip.creatio.basic.nbt;
 
 import net.minecraft.server.NBTTagString;
 
-public class StringTag implements NBTTag<NBTTagString> {
+public class StringTag implements NBTTag {
 
     private final NBTTagString string;
 

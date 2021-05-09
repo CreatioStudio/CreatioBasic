@@ -21,7 +21,4 @@ public @interface Command {
     /** If there's an existing command registered, will it be overridden? */
     boolean override() default true;
 
-    /** Hide command in /help list, but can still be seen in tab complete */
-    boolean hide() default false;
-
 }

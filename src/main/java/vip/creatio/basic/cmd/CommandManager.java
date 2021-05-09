@@ -8,8 +8,12 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.help.GenericCommandHelpTopic;
+import org.bukkit.help.HelpTopic;
+import org.bukkit.help.HelpTopicFactory;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.tools.Task;
@@ -173,15 +177,15 @@ public class CommandManager implements CommandRegister {
     public void register(@NotNull LiteralCommandNode<?> node,
                          @NotNull String description,
                          @NotNull List<String> aliases) {
-        register(node, description, aliases, true);
+        register(node, description, aliases, GenericCommandHelpTopic::new);
     }
 
     public void register(@NotNull LiteralCommandNode<?> node,
                          @NotNull String description,
                          @NotNull List<String> aliases,
-                         boolean showInHelp) {
+                         @Nullable HelpTopicFactory<BrigadierCommand> helpTopic) {
         BrigadierCommand command = new BrigadierCommand(this,
-                (LiteralCommandNode) node, description, aliases, showInHelp);
+                (LiteralCommandNode) node, description, aliases, helpTopic);
 
         registeredCommand.put(node.getName(), command);
         for (String alias : aliases) {
@@ -239,22 +243,24 @@ public class CommandManager implements CommandRegister {
     @Task(TaskType.POST_WORLD)
     static void onPostWorld() {
         cache = getCommandDispatcher0();
-        for (WeakReference<CommandManager> ref : MGR_LIST) {
-            CommandManager mgr = ref.get();
+        Iterator<WeakReference<CommandManager>> iter = MGR_LIST.iterator();
+        while (iter.hasNext()) {
+            CommandManager mgr = iter.next().get();
             if (mgr != null) {
                 mgr.initCommand();
-            }
+            } else iter.remove();
         }
         syncCommand();
     }
 
     @Task(TaskType.ON_UNLOAD)
     static void onUnLoad() {
-        for (WeakReference<CommandManager> ref : MGR_LIST) {
-            CommandManager mgr = ref.get();
+        Iterator<WeakReference<CommandManager>> iter = MGR_LIST.iterator();
+        while (iter.hasNext()) {
+            CommandManager mgr = iter.next().get();
             if (mgr != null) {
                 mgr.onDisable();
-            }
+            } else iter.remove();
         }
         BukkitUtil.syncCommand();
     }

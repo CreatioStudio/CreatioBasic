@@ -1,8 +1,10 @@
 package vip.creatio.basic.nbt;
 
 import net.minecraft.server.NBTNumber;
+import vip.creatio.common.annotation.Immutable;
 
-public abstract class NumbericTag<T extends NBTNumber> implements NBTTag<T> {
+@Immutable
+public abstract class NumbericTag<T extends NBTNumber> implements NBTTag {
 
     protected final T number;
 

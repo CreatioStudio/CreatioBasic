@@ -1,6 +1,8 @@
-package vip.creatio.basic.tools;
+package vip.creatio.basic.annotation;
 
-import vip.creatio.basic.CLibBasic;
+import vip.creatio.basic.CreatioBasic;
+import vip.creatio.basic.tools.GlobalTaskExecutor;
+import vip.creatio.basic.tools.Task;
 import vip.creatio.common.util.ReflectUtil;
 import vip.creatio.accessor.annotation.AnnotationProcessor;
 
@@ -37,7 +39,7 @@ public class TaskProcessor implements AnnotationProcessor<Task> {
                     executor.addPostWorldTask(wrapper);
             }
         } else {
-            CLibBasic.intern("[CLibBasic] Unable to register task for method " + mth);
+            CreatioBasic.intern("[CLibBasic] Unable to register task for method " + mth);
         }
     }
 

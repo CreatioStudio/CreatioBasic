@@ -7,15 +7,25 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Executor {
+public @interface Fallback {
+
+    Type type();
 
     /** Command line */
     String value();
 
-    /** Permission to use this command node, useless to Executor with Fallback type */
-    String permission() default "";
+    /** @see FallbackAction */
+    enum Type {
 
-    /** Command sender will not be able to see this section entirely if no permission */
-    boolean restricted() default true;
+        INVALID_INPUT,
 
+        FAILURE,
+
+        EXCEPTION,
+
+        NO_PERMISSION,
+
+        INVALID_SENDER;
+
+    }
 }

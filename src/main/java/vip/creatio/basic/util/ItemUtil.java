@@ -223,7 +223,7 @@ public final class ItemUtil {
             return null;
 
         List<Component> comp = new ArrayList<>();
-        for (NBTTag<?> t : lores) {
+        for (NBTTag t : lores) {
             Component c = Component.fromJson(((StringTag) t).asString());
             if (c != null) comp.add(c);
         }

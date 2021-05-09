@@ -1,19 +1,15 @@
 package vip.creatio.basic.cmd;
 
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.server.CommandListenerWrapper;
 import org.bukkit.command.CommandSender;
-import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.util.NMS;
 
 import java.util.function.Predicate;
 
 interface ExCommandNode {
-
-    CommandSyntaxException NO_MESSAGE = new CommandSyntaxException(new CommandExceptionType(){}, Component.create());
 
     FallbackAction getFallback();
 
@@ -25,7 +21,7 @@ interface ExCommandNode {
 
     Predicate<SenderType> getRequiredSenderType();
 
-    Argument.Inheritable getInheritable();
+    Argument.InheritedData getInheritable();
 
     boolean isRestricted();
 
@@ -48,7 +44,7 @@ interface ExCommandNode {
                 getFallback().exception(context, t);
             }
         } else {
-            throw NO_MESSAGE;
+            throw FallbackAction.NO_MESSAGE;
         }
         return 0;
     }

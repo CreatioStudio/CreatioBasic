@@ -5,6 +5,7 @@ import vip.creatio.accessor.annotation.AnnotationProcessor;
 import vip.creatio.accessor.annotation.DelegationProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPluginLoader;
+import vip.creatio.common.collection.Pair;
 import vip.creatio.common.util.ReflectUtil;
 
 import java.io.IOException;
@@ -52,10 +53,6 @@ public class NmsClassLoader extends ReflectiveClassLoader {
 
     public NmsClassLoader(Class<?> classInJar) {
         this(classInJar, classInJar.getClassLoader());
-    }
-
-    public void addAnnotationProcessor(AnnotationProcessor<?> processor) {
-        addProcessor(processor);
     }
 
     /** public version of addIncludePackage */

@@ -24,4 +24,9 @@ public class FloatTag extends NumbericTag<NBTTagFloat> {
     public NBTType getType() {
         return NBTType.FLOAT;
     }
+
+    @Override
+    public Class<? extends NBTTagFloat> wrappedClass() {
+        return NBTTagFloat.class;
+    }
 }

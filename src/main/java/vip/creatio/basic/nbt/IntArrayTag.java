@@ -1,5 +1,7 @@
 package vip.creatio.basic.nbt;
 
+import net.minecraft.server.NBTBase;
+import net.minecraft.server.NBTList;
 import net.minecraft.server.NBTTagIntArray;
 import org.jetbrains.annotations.NotNull;
 
@@ -75,5 +77,10 @@ extends CollectionTag<IntTag> {
 
     public void set(int index, int i) {
         set(index, IntTag.valueOf(i));
+    }
+
+    @Override
+    public Class<? extends NBTList<? extends NBTBase>> wrappedClass() {
+        return NBTTagIntArray.class;
     }
 }

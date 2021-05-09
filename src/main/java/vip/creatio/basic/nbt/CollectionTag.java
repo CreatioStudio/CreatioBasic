@@ -7,9 +7,9 @@ import java.util.AbstractList;
 
 /** S - the storaged raw type, W - the wrapper interface */
 @SuppressWarnings("unchecked")
-public abstract class CollectionTag<W extends NBTTag<? extends NBTBase>>
+public abstract class CollectionTag<W extends NBTTag>
 extends AbstractList<W>
-implements NBTTag<NBTList<? extends NBTBase>>
+implements NBTTag
 {
 
     protected NBTList<NBTBase> list;

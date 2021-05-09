@@ -99,6 +99,13 @@ public class Component implements Iterable<Component>, Message, Wrapper<IChatBas
         return this;
     }
 
+    public Component append(Component[] components) {
+        for (Component c : components) {
+            this.component.addSibling(c.unwrap());
+        }
+        return this;
+    }
+
     public Component withStyle(UnaryOperator<ChatStyle> op) {
         setStyle(op.apply(getStyle()));
         return this;

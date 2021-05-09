@@ -1,12 +1,14 @@
-package vip.creatio.basic.tools;
+package vip.creatio.basic.annotation;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import vip.creatio.basic.CLibBasic;
+import vip.creatio.basic.CreatioBasic;
 import vip.creatio.basic.packet.Packet;
 import vip.creatio.basic.packet.PacketHandler;
 import vip.creatio.basic.packet.PacketListener;
 import vip.creatio.accessor.annotation.AnnotationProcessor;
+import vip.creatio.basic.tools.Listener;
+import vip.creatio.basic.tools.ListenerRegister;
 import vip.creatio.common.util.ReflectUtil;
 
 import java.lang.reflect.Method;
@@ -20,7 +22,7 @@ public class ListenerProcessor implements AnnotationProcessor<Listener> {
 
     public ListenerProcessor(ListenerRegister register) {
         this.register = register;
-        this.listener = CLibBasic.getInstance().getPacketListener();
+        this.listener = CreatioBasic.getInstance().getPacketListener();
     }
 
     public ListenerProcessor(ListenerRegister register, PacketListener packet) {
@@ -37,7 +39,7 @@ public class ListenerProcessor implements AnnotationProcessor<Listener> {
                 if (Event.class.isAssignableFrom(mth.getParameterTypes()[0])) {
                     register.register(mth);
                 } else {
-                    CLibBasic.intern("The first param of  " + mth + " should extends " + Event.class.getName() + "!");
+                    CreatioBasic.intern("The first param of  " + mth + " should extends " + Event.class.getName() + "!");
                 }
             } else if (mth.getParameterCount() == 2) {
                 if (Packet.class.isAssignableFrom(mth.getParameterTypes()[0])) {
@@ -52,19 +54,19 @@ public class ListenerProcessor implements AnnotationProcessor<Listener> {
                         } else if (mth.getReturnType() == boolean.class) {
                             handler = ReflectUtil.createLambda(PacketHandler.class, mth);
                         } else {
-                            CLibBasic.intern("Return type of method " + mth + " should be void or boolean!");
+                            CreatioBasic.intern("Return type of method " + mth + " should be void or boolean!");
                             return;
                         }
                         this.listener.register((Class<Packet<?>>) mth.getParameterTypes()[0], handler);
                     } else {
-                        CLibBasic.intern("The second param of  " + mth + " should be the super type of " + Player.class.getName() + "!");
+                        CreatioBasic.intern("The second param of  " + mth + " should be the super type of " + Player.class.getName() + "!");
                     }
                 } else {
-                    CLibBasic.intern("The first param of  " + mth + " should extends " + Packet.class.getName() + "!");
+                    CreatioBasic.intern("The first param of  " + mth + " should extends " + Packet.class.getName() + "!");
                 }
             }
         } else {
-            CLibBasic.intern("Method " + mth + " should be non-private and static in oreder to use @Listener!");
+            CreatioBasic.intern("Method " + mth + " should be non-private and static in oreder to use @Listener!");
         }
     }
 

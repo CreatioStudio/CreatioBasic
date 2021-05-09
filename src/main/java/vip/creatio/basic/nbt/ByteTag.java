@@ -24,4 +24,9 @@ public class ByteTag extends NumbericTag<NBTTagByte> {
     public NBTType getType() {
         return NBTType.BYTE;
     }
+
+    @Override
+    public Class<? extends NBTTagByte> wrappedClass() {
+        return NBTTagByte.class;
+    }
 }

@@ -24,4 +24,9 @@ public class LongTag extends NumbericTag<NBTTagLong> {
     public NBTType getType() {
         return NBTType.LONG;
     }
+
+    @Override
+    public Class<? extends NBTTagLong> wrappedClass() {
+        return NBTTagLong.class;
+    }
 }

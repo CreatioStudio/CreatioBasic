@@ -4,7 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.help.HelpTopic;
+import org.bukkit.help.HelpTopicFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +29,7 @@ public interface CommandRegister {
     void register(@NotNull LiteralCommandNode<?> node,
                   @NotNull String description,
                   @NotNull List<String> aliases,
-                  boolean showInHelp);
+                  @Nullable HelpTopicFactory<BrigadierCommand> helpTopic);
 
     default void register(@NotNull LiteralArgument arg,
                           @NotNull String description) {
@@ -42,8 +45,8 @@ public interface CommandRegister {
     default void register(@NotNull LiteralArgument arg,
                           @NotNull String description,
                           @NotNull List<String> aliases,
-                          boolean shouInHelpList) {
-        register(arg.build(), description, aliases, shouInHelpList);
+                          @Nullable HelpTopicFactory<BrigadierCommand> helpTopic) {
+        register(arg.build(), description, aliases, helpTopic);
     }
 
     void unregister(@NotNull String name);

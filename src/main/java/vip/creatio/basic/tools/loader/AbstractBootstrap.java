@@ -1,8 +1,10 @@
 package vip.creatio.basic.tools.loader;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import vip.creatio.common.util.ReflectUtil;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
@@ -73,5 +75,10 @@ public abstract class AbstractBootstrap extends JavaPlugin {
     @Override
     public void onLoad() {
         delegate.load();
+    }
+
+    @Override
+    public @NotNull File getFile() {
+        return super.getFile();
     }
 }

@@ -62,9 +62,9 @@ public final class Context {
             throw new IllegalArgumentException("No such argument '" + name + "' exists on this command");
         } else {
             Object result = argument.getResult();
-            clazz = (Class<V>) ArgumentTypes.unwrap(clazz);
-            if (ReflectUtil.toWrapper(clazz).isAssignableFrom(result.getClass())) {
-                return (V) ArgumentTypes.wrap(result);
+            Class<?> raw = ArgumentTypes.getRawType(clazz);
+            if (ReflectUtil.toWrapper(raw).isAssignableFrom(result.getClass())) {
+                return (V) ArgumentTypes.toWrapper(result, clazz);
             } else {
                 throw new IllegalArgumentException("Argument '" + name + "' is defined as " + result.getClass().getSimpleName() + ", not " + clazz);
             }
@@ -78,11 +78,16 @@ public final class Context {
         return null;
     }
 
+    public String getArgumentInput(String name) {
+        ParsedArgument<?, ?> argument = this.arguments.get(name);
+        return argument == null ? null : argument.getRange().get(input);
+    }
+
     public String getInput() {
         return input;
     }
 
-    public CommandSender getSource() {
+    public CommandSender getSender() {
         return source;
     }
 
@@ -98,6 +103,10 @@ public final class Context {
         return rootNode;
     }
 
+    public CommandNode<?> getFirstNode() {
+        return nodes.get(0).getNode();
+    }
+
     public StringRange getLastNodeRange() {
         return nodes.get(nodes.size() - 1).getRange();
     }
@@ -111,7 +120,11 @@ public final class Context {
     }
 
     public String getLabel() {
-        return getRootNode().getName();
+        return getFirstNode().getName();
+    }
+
+    public List<ParsedCommandNode<CommandListenerWrapper>> getNodes() {
+        return nodes;
     }
 
     @Override

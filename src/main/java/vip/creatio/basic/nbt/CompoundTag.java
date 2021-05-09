@@ -8,14 +8,15 @@ import net.minecraft.server.NBTBase;
 import net.minecraft.server.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.util.BukkitUtil;
 
 import java.util.*;
 
 public class CompoundTag
-extends AbstractMap<String, NBTTag<?>>
-implements NBTTag<NBTTagCompound> {
+extends AbstractMap<String, NBTTag>
+implements NBTTag {
 
-    private NBTTagCompound compound;
+    private final NBTTagCompound compound;
 
     public CompoundTag(@NotNull String nbt) {
         try {
@@ -47,18 +48,9 @@ implements NBTTag<NBTTagCompound> {
         return new CompoundTag(nbt);
     }
 
-    //Set Original NBTTagCompound Object
-    public void setCompound(@NotNull NBTTagCompound compound) {
-        this.compound = compound;
-    }
-
-    public @NotNull NBTTagCompound getCompound() {
-        return this.compound;
-    }
-
     @Override
     public @NotNull NBTTagCompound unwrap() {
-        return getCompound();
+        return this.compound;
     }
 
     @Override
@@ -73,29 +65,30 @@ implements NBTTag<NBTTagCompound> {
 
     private static final Func<Map<String, NBTBase>> ENTRIES = Reflection.method(NBTTagCompound.class, "h");
     @NotNull
-    public Set<Entry<String, NBTTag<?>>> entrySet() {
+    public Set<Entry<String, NBTTag>> entrySet() {
         Map<String, NBTBase> map = ENTRIES.invoke(compound);
-        Map<String, NBTTag<?>> newMap = new HashMap<>();
+        Map<String, NBTTag> newMap = new HashMap<>();
         map.forEach((s, b) -> newMap.put(s, NBTTag.wrap(b)));
 
         return newMap.entrySet();
     }
 
     //Get NBTBase from vanilla nbtPath
-    public @Nullable NBTTag<?> path(@NotNull String nbtPath) {
-        //Convert nbtPath to nbtSectionNode
-        Queue<Node> node = Node.fromPath(nbtPath);
-        try {
-            NBTTag<?> item = Objects.requireNonNull(node.poll()).get(this);
-            while (!node.isEmpty()) {
-                if (item instanceof CompoundTag) {
-                    item = node.poll().get((CompoundTag) item);
-                }
-            }
-            return item;
-        } catch (NullPointerException e) {
-            return null;
-        }
+    public List<NBTTag> path(@NotNull String nbtPath) throws CommandSyntaxException {
+//        //Convert nbtPath to nbtSectionNode
+//        Queue<Node> node = Node.fromPath(nbtPath);
+//        try {
+//            NBTTag item = Objects.requireNonNull(node.poll()).get(this);
+//            while (!node.isEmpty()) {
+//                if (item instanceof CompoundTag) {
+//                    item = node.poll().get((CompoundTag) item);
+//                }
+//            }
+//            return item;
+//        } catch (NullPointerException e) {
+//            return null;
+//        }
+        return BukkitUtil.parseNBTPath(this, nbtPath);
     }
 
     public boolean hasNBT(String rawNbt) {
@@ -105,7 +98,8 @@ implements NBTTag<NBTTagCompound> {
     public boolean contains(CompoundTag base) {
         try {
             for (String key : base.keySet()) {
-                NBTTag<?> item = (NBTTag<?>) base.get(key);
+                NBTTag item = base.get(key);
+                if (item == null) return false;
                 switch (item.getType()) {
                     case INT:
                         if (((IntTag) item).asInt() != getInt(key)) return false;
@@ -154,7 +148,7 @@ implements NBTTag<NBTTagCompound> {
                         } else return false;
                         break;
                     case LIST:
-                        for (NBTTag<?> b : (ListTag<?>) item) {
+                        for (NBTTag b : (ListTag<?>) item) {
                             if (b instanceof CompoundTag) {
                                 if (!getCompound(key).contains((CompoundTag) b)) return false;
                             }
@@ -241,7 +235,7 @@ implements NBTTag<NBTTagCompound> {
         return this;
     }
     @NotNull
-    public CompoundTag put(String key, NBTTag<?> value) {                   //General Set
+    public CompoundTag put(String key, NBTTag value) {                   //General Set
         compound.set(key, value.unwrap());
         return this;
     }
@@ -287,13 +281,13 @@ implements NBTTag<NBTTagCompound> {
         return compound.a(key);
     }
     @Override
-    public @Nullable NBTTag<?> get(Object key) {                                //Get NBTBase of any element
+    public @Nullable NBTTag get(Object key) {                                //Get NBTBase of any element
         return NBTTag.wrap(compound.get((String) key));
     }
 
     @Override
-    public NBTTag<?> remove(Object key) {
-        NBTTag<?> removed = get(key);
+    public NBTTag remove(Object key) {
+        NBTTag removed = get(key);
         compound.remove((String) key);
         return removed;
     }

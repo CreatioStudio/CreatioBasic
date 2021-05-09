@@ -24,4 +24,9 @@ public class DoubleTag extends NumbericTag<NBTTagDouble> {
     public NBTType getType() {
         return NBTType.DOUBLE;
     }
+
+    @Override
+    public Class<? extends NBTTagDouble> wrappedClass() {
+        return NBTTagDouble.class;
+    }
 }

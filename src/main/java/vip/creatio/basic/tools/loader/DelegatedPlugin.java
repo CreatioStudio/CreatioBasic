@@ -1,16 +1,23 @@
 package vip.creatio.basic.tools.loader;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
-import vip.creatio.basic.tools.ListenerProcessor;
-import vip.creatio.basic.tools.TaskProcessor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import vip.creatio.basic.annotation.ListenerProcessor;
+import vip.creatio.basic.annotation.TaskProcessor;
 import vip.creatio.basic.cmd.CommandManager;
 import vip.creatio.basic.cmd.CommandRegister;
 import vip.creatio.basic.packet.ChannelPacketListener;
 import vip.creatio.basic.packet.PacketListener;
 import vip.creatio.basic.tools.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
  * A delegated plugin class that contains basic plugin services
@@ -64,8 +71,8 @@ public abstract class DelegatedPlugin implements PluginInterface {
         }, bootstrap);
         onEnable();
         PacketListener.registerListener(bootstrap, packetListener);
-        bootstrap.loader.addAnnotationProcessor(new ListenerProcessor(listenerManager));
-        bootstrap.loader.addAnnotationProcessor(new TaskProcessor(taskManager));
+        bootstrap.loader.addProcessor(new ListenerProcessor(listenerManager));
+        bootstrap.loader.addProcessor(new TaskProcessor(taskManager));
         bootstrap.loader.processAnnotations();
 
         taskManager.start();
@@ -105,4 +112,29 @@ public abstract class DelegatedPlugin implements PluginInterface {
     public CommandRegister getCommandRegister() {
         return commandRegister;
     }
+
+    public final File getDataFolder() {
+        return bootstrap.getDataFolder();
+    }
+
+    public final File getFile() {
+        return bootstrap.getFile();
+    }
+
+    public final Server getServer() {
+        return bootstrap.getServer();
+    }
+
+    public void saveResource(@NotNull String resourcePath, boolean replace) {
+        bootstrap.saveResource(resourcePath, replace);
+    }
+
+    public @Nullable InputStream getResource(@NotNull String filename) {
+        return bootstrap.getResource(filename);
+    }
+
+    public Logger getLogger() {
+        return bootstrap.getLogger();
+    }
+
 }

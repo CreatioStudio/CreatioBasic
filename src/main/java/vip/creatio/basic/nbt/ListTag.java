@@ -16,7 +16,7 @@ import java.util.Collection;
  * @param <W> the type of element;
  */
 @SuppressWarnings("unchecked")
-public class ListTag<W extends NBTTag<? extends NBTBase>>
+public class ListTag<W extends NBTTag>
 extends CollectionTag<W> {
 
     /** Since NBTTagList doesn't have generic, so it needs to be converted */
@@ -128,5 +128,15 @@ extends CollectionTag<W> {
                 tag.add(new StringTag(comp.toJson()));
         }
         return tag;
+    }
+
+    @Override
+    public NBTTagList unwrap() {
+        return (NBTTagList) super.unwrap();
+    }
+
+    @Override
+    public Class<? extends NBTList<? extends NBTBase>> wrappedClass() {
+        return NBTTagList.class;
     }
 }

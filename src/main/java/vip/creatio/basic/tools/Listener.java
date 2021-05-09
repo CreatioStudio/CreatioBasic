@@ -1,6 +1,5 @@
 package vip.creatio.basic.tools;
 
-import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 
 import java.lang.annotation.ElementType;

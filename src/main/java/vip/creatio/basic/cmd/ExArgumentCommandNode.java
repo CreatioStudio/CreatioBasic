@@ -1,8 +1,12 @@
 package vip.creatio.basic.cmd;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.CommandContextBuilder;
+import com.mojang.brigadier.context.ParsedArgument;
+import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -14,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
+import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.util.NMS;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,27 +32,37 @@ final class ExArgumentCommandNode<T> extends ArgumentCommandNode<CommandListener
 
     private final CommandAction command;
     private final RedirectSource redirectSource;
-    private final Argument.Inheritable inheritable;
+    private final Argument.InheritedData inherit;
+    private final ArgumentType<T> type;
     private final boolean restricted;
+    private final boolean customArgumentType;
 
     @SuppressWarnings("unchecked")
     public ExArgumentCommandNode(@NotNull String name,
                                  @NotNull ArgumentType<T> type,
                                  @Nullable CommandAction command,
-                                 @NotNull Argument.Inheritable inheritable,
+                                 @NotNull Argument.InheritedData inherit,
                                  @Nullable CommandNode<?> redirect,
                                  @Nullable RedirectSource modifier,
                                  boolean forks,
                                  @Nullable SuggestionProvider suggestions,
                                  boolean restricted) {
-        super(name, (ArgumentType<T>) ArgumentTypes.unwrap(type), null, restricted ? w -> inheritable.required[0].test(NMS.toBukkit(w)) : w -> true ,
+        super(name,
+                (ArgumentType<T>) ArgumentTypes.unwrap(type),
+                null,
+                restricted ? w -> inherit.getRequirement().test(NMS.toBukkit(w)) : w -> true,
                 (CommandNode<CommandListenerWrapper>) redirect,
                 modifier == null ? null : c -> modifier.apply(new Context(c)).stream().map(NMS::toNms).collect(Collectors.toList()),
-                forks, suggestions == null ? null : (c, b) -> suggestions.getSuggestions(new Context(c), b));
+                forks,
+                suggestions == null
+                        ? (type instanceof ExternArgumentType ? (com.mojang.brigadier.suggestion.SuggestionProvider<CommandListenerWrapper>) type : null)
+                        : (c, b) -> suggestions.getSuggestions(new Context(c), b));
         if (command != null) COMMAND.set(this, ExCommandNode.super::executeAction);
         this.command = command;
-        this.inheritable = inheritable;
+        this.inherit = inherit;
         this.redirectSource = modifier;
+        this.type = type;
+        this.customArgumentType = type instanceof ExternArgumentType && !(type instanceof ArgumentTypes.WrappedArgumentType);
         this.restricted = restricted;
     }
 
@@ -61,10 +76,35 @@ final class ExArgumentCommandNode<T> extends ArgumentCommandNode<CommandListener
     }
 
     @Override
-    public FallbackAction getFallback() {
-        return inheritable.fallback[0];
+    public void parse(StringReader reader, CommandContextBuilder<CommandListenerWrapper> contextBuilder) throws CommandSyntaxException {
+        if (customArgumentType) {
+            try {
+                int start = reader.getCursor();
+                T result = this.type.parse(reader);
+                ParsedArgument<CommandListenerWrapper, T> parsed = new ParsedArgument<>(start, reader.getCursor(), result);
+                contextBuilder.withArgument(getName(), parsed);
+                contextBuilder.withNode(this, parsed.getRange());
+
+                // To make sure all exceptions are CommandSyntaxException
+            } catch (CommandSyntaxException e) {
+                throw e;
+            } catch (Throwable t) {
+                String errMsg = "Exception while parsing Brigadier command!";
+                System.err.println(errMsg);
+                t.printStackTrace();
+                throw new CommandSyntaxException(new CommandExceptionType(){}, Component.of(errMsg));
+            }
+        } else {
+            super.parse(reader, contextBuilder);
+        }
     }
 
+    @Override
+    public FallbackAction getFallback() {
+        return inherit.fallback;
+    }
+
+    @Override
     public CommandAction getCommandAction() {
         return command;
     }
@@ -74,11 +114,11 @@ final class ExArgumentCommandNode<T> extends ArgumentCommandNode<CommandListener
     }
 
     public Predicate<CommandSender> getSenderPredicate() {
-        return inheritable.required[0];
+        return inherit.getRequirement();
     }
 
     public Predicate<SenderType> getRequiredSenderType() {
-        return inheritable.reqType[0];
+        return inherit.getSenderType();
     }
 
     @Override
@@ -92,7 +132,7 @@ final class ExArgumentCommandNode<T> extends ArgumentCommandNode<CommandListener
     }
 
     @Override
-    public Argument.Inheritable getInheritable() {
-        return inheritable;
+    public Argument.InheritedData getInheritable() {
+        return inherit;
     }
 }

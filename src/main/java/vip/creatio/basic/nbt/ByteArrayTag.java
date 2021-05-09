@@ -1,5 +1,7 @@
 package vip.creatio.basic.nbt;
 
+import net.minecraft.server.NBTBase;
+import net.minecraft.server.NBTList;
 import net.minecraft.server.NBTTagByteArray;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,11 +59,6 @@ extends CollectionTag<ByteTag> {
         return NBTTag.wrap(list.get(index));
     }
 
-    @Override
-    public NBTTagByteArray unwrap() {
-        return (NBTTagByteArray) super.unwrap();
-    }
-
     public byte[] getBytes() {
         return unwrap().getBytes();
     }
@@ -76,5 +73,15 @@ extends CollectionTag<ByteTag> {
 
     public void set(int index, byte b) {
         set(index, ByteTag.valueOf(b));
+    }
+
+    @Override
+    public NBTTagByteArray unwrap() {
+        return (NBTTagByteArray) super.unwrap();
+    }
+
+    @Override
+    public Class<? extends NBTList<? extends NBTBase>> wrappedClass() {
+        return super.wrappedClass();
     }
 }

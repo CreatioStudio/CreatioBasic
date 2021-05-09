@@ -15,32 +15,13 @@ import java.util.regex.Pattern;
 
 public class MsgManager implements MsgSender {
 
-    private String prefix = "";
-    private String prefixPlaceholder = "";
-
     private String hex = "\\{#([0-9a-fA-F])}";
     private Pattern hexPattern = Pattern.compile(hex);
 
-    public MsgManager() {
-        setPrefix("");
-    }
+    public MsgManager() {}
 
-    public MsgManager(@NotNull String prefix) {
-        setPrefix(prefix);
-    }
-
-    public MsgManager(@NotNull String prefix, @NotNull String hexPattern) {
-        setPrefix(prefix);
+    public MsgManager(@NotNull String hexPattern) {
         setHexPattern(hexPattern);
-    }
-
-    public final void setPrefix(@NotNull String prefix) {
-        setPrefix(prefix, "%prefix%");
-    }
-
-    public final void setPrefix(@NotNull String prefix, @NotNull String placeholder) {
-        this.prefix = replaceColors(prefix);
-        this.prefixPlaceholder = placeholder;
     }
 
     public final void setHexPattern(@NotNull String hexPattern) {
@@ -104,18 +85,14 @@ public class MsgManager implements MsgSender {
     }
 
     public String replaceChars(String msg) {
-        String str = replaceColors(msg);
-        if (prefix != null) str = str.replace(prefixPlaceholder, prefix);
-        return str;
+        return replaceColors(msg);
     }
 
     public Component replaceChars(Component comp) {
-        Component str = comp
+        return comp
                 .replaceAll(hex, m -> m.replaceAll(r -> ChatColor.hexToColorCode(r.group(1))))
                 .replace('&', '§')
                 .replace("\\§", "&");
-        if (prefix != null) str = str.replace(prefixPlaceholder, prefix);
-        return str;
     }
 
     @Override

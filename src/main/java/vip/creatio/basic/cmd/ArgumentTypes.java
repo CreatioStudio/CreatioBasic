@@ -1,19 +1,30 @@
 package vip.creatio.basic.cmd;
 
+import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.*;
+import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.*;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import vip.creatio.accessor.Reflection;
+import vip.creatio.accessor.Var;
+import vip.creatio.basic.chat.Component;
 import vip.creatio.basic.math.Vec2;
+import vip.creatio.basic.nbt.CompoundTag;
+import vip.creatio.basic.nbt.NBTTag;
 import vip.creatio.basic.util.BukkitUtil;
 import vip.creatio.basic.util.NMS;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class ArgumentTypes {
 
@@ -84,45 +95,43 @@ public final class ArgumentTypes {
         return StringArgumentType.greedyString();
     }
 
-
-    private static final Set<Class<?>> WHITELIST = new HashSet<>();
-    @SuppressWarnings("rawtypes")
-    private static final Map<Class<?>, Function> WRAPPERS = new HashMap<>();
-    private static final Map<Class<?>, Class<?>> RAW_TYPES = new HashMap<>();
-    static {
-        WRAPPERS.put(net.minecraft.server.EntitySelector.class, (Function<net.minecraft.server.EntitySelector, ?>) EntitySelector::new);
-        RAW_TYPES.put(EntitySelector.class, net.minecraft.server.EntitySelector.class);
-
-        WRAPPERS.put(IVectorPosition.class, (Function<IVectorPosition, ?>) Coords::new);
-        RAW_TYPES.put(Coords.class, IVectorPosition.class);
+    public static ArgumentType<List<String>> ofMultipleString() {
+        return ofMultiple(ofWord());
     }
+
+
+
 
     /** EntitySelectors, in order to see tab complete suggestions players need permission "minecraft.command.selector" */
     public static ArgumentType<EntitySelector> ofEntity() {
-        return wrapArgument(ArgumentEntity.a /* entity */ ());
+        return wrapArgument(ArgumentEntity.a /* entity */ (), EntitySelector::new);
     }
 
     public static ArgumentType<EntitySelector> ofEntities() {
-        return wrapArgument(ArgumentEntity.multipleEntities());
+        return wrapArgument(ArgumentEntity.multipleEntities(), EntitySelector::new);
     }
 
     public static ArgumentType<EntitySelector> ofPlayer() {
-        return wrapArgument(ArgumentEntity.c /* player */ ());
+        return wrapArgument(ArgumentEntity.c /* player */ (), EntitySelector::new);
     }
 
     public static ArgumentType<EntitySelector> ofPlayers() {
-        return wrapArgument(ArgumentEntity.d /* players */ ());
+        return wrapArgument(ArgumentEntity.d /* players */ (), EntitySelector::new);
     }
 
 
 
 
     public static ArgumentType<Coords> ofRotation() {
-        return wrapArgument(new ArgumentRotation());
+        return wrapArgument(new ArgumentRotation(), Coords::new);
     }
 
     public static ArgumentType<Coords> ofVec2(boolean centerCorrect) {
-        return wrapArgument(new ArgumentVec2(centerCorrect));
+        return wrapArgument(new ArgumentVec2(centerCorrect), Coords::new);
+    }
+
+    public static ArgumentType<Coords> ofVec2i() {
+        return wrapArgument(new ArgumentVec2I(), Coords::new);
     }
 
     public static ArgumentType<Coords> ofVec2() {
@@ -130,14 +139,14 @@ public final class ArgumentTypes {
     }
 
     public static ArgumentType<Coords> ofVec3(boolean centerCorrect) {
-        return wrapArgument(new ArgumentVec3(centerCorrect));
+        return wrapArgument(new ArgumentVec3(centerCorrect), Coords::new);
     }
 
     public static ArgumentType<Coords> ofVec3() {
         return ofVec3(true);
     }
 
-    public static class Coords {
+    public static final class Coords {
 
         private final IVectorPosition pos;
 
@@ -193,60 +202,194 @@ public final class ArgumentTypes {
         return new ArgumentUUID();
     }
 
-
-
-
-    private static <S, T> ArgumentType<S> wrapArgument(@NotNull ArgumentType<T> raw) {
-        return new WrappedArgumentType<>(raw);
+    public static ArgumentType<Component> ofComponent() {
+        return wrapArgument(ArgumentChatComponent.a /* create */ (), Component::wrap);
     }
 
-    private static class WrappedArgumentType<S, T> implements ArgumentType<S> {
+    public static ArgumentType<CompoundTag> ofCompoundTag() {
+        return wrapArgument(ArgumentNBTTag.a /* create */ (), CompoundTag::new);
+    }
 
-        private final ArgumentType<T> raw;
 
-        private WrappedArgumentType(@NotNull ArgumentType<T> raw) {
-            this.raw = raw;
+
+    public static ArgumentType<NBTTag> ofNBTTag() {
+        return wrapArgument(ArgumentNBTBase.a /* create */ (), NBTTag::wrap);
+    }
+
+    public static ArgumentType<NBTPath> ofNBTPath() {
+        return wrapArgument(ArgumentNBTKey.a /* create */ (), NBTPath::new);
+    }
+
+    public static final class NBTPath {
+
+        private static final Var<String> SOURCE_STRING = Reflection.field(ArgumentNBTKey.h.class, 0);
+
+        private final ArgumentNBTKey.h path;
+
+        private NBTPath(ArgumentNBTKey.h path) {
+            this.path = path;
+        }
+
+        public List<NBTTag> get(NBTTag root) throws CommandSyntaxException {
+            return path.a /* get */ (root.unwrap())
+                    .stream()
+                    .map((Function<? super NBTBase, NBTTag>) NBTTag::wrap)
+                    .collect(Collectors.toList());
+        }
+
+        public int countMatching(NBTTag tag) {
+            return path.b /* countMatching */ (tag.unwrap());
+        }
+
+        public List<NBTTag> getOrCreate(NBTTag root, Supplier<NBTTag> def) throws CommandSyntaxException {
+            return path.a /* getOrCreate */ (root.unwrap(), () -> def.get().unwrap())
+                    .stream()
+                    .map((Function<? super NBTBase, NBTTag>) NBTTag::wrap)
+                    .collect(Collectors.toList());
+        }
+
+        public int set(NBTTag root, Supplier<NBTTag> setTo) throws CommandSyntaxException {
+            return path.b /* set */ (root.unwrap(), () -> setTo.get().unwrap());
+        }
+
+        public int remove(NBTTag root) {
+            return path.c /* remove */ (root.unwrap());
+        }
+
+        public String getString() {
+            return SOURCE_STRING.get(path);
+        }
+
+        @Override
+        public String toString() {
+            return path.toString();
+        }
+    }
+
+
+    // Custom argument types
+    public static ArgumentType<File[]> ofFiles(File parent, FileFilter filter, boolean includeDir) {
+        return new FileArgumentType(parent, filter, includeDir);
+    }
+
+    public static ArgumentType<File[]> ofFiles(File parent, FileFilter filter) {
+        return ofFiles(parent, filter, false);
+    }
+
+    public static ArgumentType<File[]> ofFiles(File parent) {
+        return new FileArgumentType(parent);
+    }
+
+    public static ArgumentType<File[]> ofFile(File parent, FileFilter filter) {
+        return new FileArgumentType(parent, filter, false, true);
+    }
+
+    public static ArgumentType<File[]> ofFile(File parent) {
+        return ofFile(parent, f -> true);
+    }
+
+    public static ArgumentType<File[]> ofClassFiles(File root, FileFilter filter) {
+        return new ClassPathArgumentType(root, ".class", filter);
+    }
+
+    public static ArgumentType<File[]> ofClassFiles(File root) {
+        return new ClassPathArgumentType(root);
+    }
+
+    public static ArgumentType<File[]> ofJavaFiles(File root, FileFilter filter) {
+        return new ClassPathArgumentType(root, ".java", filter);
+    }
+
+    public static ArgumentType<File[]> ofJavaFiles(File root) {
+        return new ClassPathArgumentType(root, ".java");
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static ArgumentType<Class<?>[]> ofClasses(Collection<Class<?>> range, boolean selectMultiple, boolean getAssociated) {
+        return (ArgumentType) new ClassArgumentType(range, selectMultiple, getAssociated);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static ArgumentType<Class<?>[]> ofClasses(Collection<Class<?>> range) {
+        return (ArgumentType) new ClassArgumentType(range, true, true);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static ArgumentType<Class<?>[]> ofClass(Collection<Class<?>> range) {
+        return (ArgumentType) new ClassArgumentType(range, false, false);
+    }
+
+
+    public static <T> ArgumentType<List<T>> ofMultiple(ArgumentType<T> type, int min, int max) {
+        return new MultiArgumentType<>(type, min, max);
+    }
+
+    public static <T> ArgumentType<List<T>> ofMultiple(ArgumentType<T> type) {
+        return new MultiArgumentType<>(type, 1, -1);
+    }
+
+
+
+    private static <S, T> ArgumentType<S> wrapArgument(@NotNull ArgumentType<T> raw, Function<T, S> convertor) {
+        return new WrappedArgumentType<>(raw, convertor);
+    }
+
+    @SuppressWarnings("unchecked")
+    static final class WrappedArgumentType<S, T> extends ExternArgumentType<S> {
+
+        private final Function<T, S> convertor;
+
+        private WrappedArgumentType(@NotNull ArgumentType<T> raw, Function<T, S> convertor) {
+            super(raw);
+            this.convertor = convertor;
         }
 
         @Override
         public S parse(StringReader stringReader) throws CommandSyntaxException {
-            return wrap(raw.parse(stringReader));
+            return wrap(((ArgumentType<T>) raw).parse(stringReader));
         }
 
-        @SuppressWarnings("unchecked")
         private S wrap(T raw) {
-            return (S) WRAPPERS.get(raw.getClass()).apply(raw);
+            return convertor.apply(raw);
         }
     }
 
+    @SuppressWarnings("rawtypes")
+    private static final Map<Class<?>, Function> WRAPPERS = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> RAW_TYPES = new HashMap<>();
+    static {
+        WRAPPERS.put(EntitySelector.class, (Function<net.minecraft.server.EntitySelector, ?>) EntitySelector::new);
+        RAW_TYPES.put(EntitySelector.class, net.minecraft.server.EntitySelector.class);
+
+        WRAPPERS.put(Coords.class, (Function<IVectorPosition, ?>) Coords::new);
+        RAW_TYPES.put(Coords.class, IVectorPosition.class);
+
+        WRAPPERS.put(Component.class, (Function<IChatBaseComponent, ?>) Component::wrap);
+        RAW_TYPES.put(Component.class, IChatBaseComponent.class);
+
+        WRAPPERS.put(CompoundTag.class, (Function<NBTTagCompound, ?>) CompoundTag::new);
+        RAW_TYPES.put(CompoundTag.class, NBTTagCompound.class);
+
+        WRAPPERS.put(NBTTag.class, (Function<NBTBase, ?>) NBTTag::wrap);
+        RAW_TYPES.put(NBTTag.class, NBTBase.class);
+
+        WRAPPERS.put(NBTPath.class, (Function<ArgumentNBTKey.h, ?>) NBTPath::new);
+        RAW_TYPES.put(NBTPath.class, ArgumentNBTKey.h.class);
+    }
+
     static ArgumentType<?> unwrap(ArgumentType<?> type) {
-        if (type instanceof WrappedArgumentType) {
-            return ((WrappedArgumentType<?, ?>) type).raw;
+        if (type instanceof ExternArgumentType) {
+            return ((ExternArgumentType<?>) type).unwrap();
         }
         return type;
     }
 
-    static Class<?> unwrap(Class<?> wrapped) {
+    static Object toWrapper(Object obj, Class<?> wrapperClass) {
+        return WRAPPERS.getOrDefault(wrapperClass, f -> f).apply(obj);
+    }
+
+    static Class<?> getRawType(Class<?> wrapped) {
         return RAW_TYPES.getOrDefault(wrapped, wrapped);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    static Object wrap(Object obj) {
-        Class<?> objClass = obj.getClass();
-        Function<Object, Object> func = WRAPPERS.get(objClass);
-        if (func != null) {
-            return func.apply(obj);
-        } else {
-            if (!WHITELIST.contains(objClass)) {
-                for (Map.Entry<Class<?>, Function> entry : WRAPPERS.entrySet()) {
-                    if (entry.getKey().isAssignableFrom(objClass)) {
-                        WRAPPERS.put(objClass, entry.getValue());
-                        return entry.getValue().apply(obj);
-                    }
-                }
-                WHITELIST.add(objClass);
-            }
-        }
-        return obj;
-    }
 }

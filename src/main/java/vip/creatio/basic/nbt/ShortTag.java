@@ -25,4 +25,9 @@ public class ShortTag extends NumbericTag<NBTTagShort> {
     public NBTType getType() {
         return NBTType.SHORT;
     }
+
+    @Override
+    public Class<? extends NBTTagShort> wrappedClass() {
+        return NBTTagShort.class;
+    }
 }

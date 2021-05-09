@@ -3,7 +3,7 @@ package vip.creatio.basic.nbt;
 import vip.creatio.basic.tools.Wrapper;
 import net.minecraft.server.*;
 
-public interface NBTTag<T extends NBTBase> extends Wrapper<T> {
+public interface NBTTag extends Wrapper<NBTBase> {
 
     NBTType getType();
 
@@ -15,10 +15,10 @@ public interface NBTTag<T extends NBTBase> extends Wrapper<T> {
         return getType().getId();
     }
 
-    T unwrap();
+    NBTBase unwrap();
 
     @SuppressWarnings("unchecked")
-    static <T extends NBTBase, S extends NBTTag<? extends T>> S wrap(T rawBase) {
+    static <T extends NBTBase, S extends NBTTag> S wrap(T rawBase) {
         if (rawBase == null) return null;
         if (rawBase instanceof NBTTagCompound) {
             return (S) new CompoundTag((NBTTagCompound) rawBase);

@@ -13,12 +13,16 @@ import org.bukkit.Location;
 import org.bukkit.command.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.defaults.BukkitCommand;
-import org.bukkit.help.GenericCommandHelpTopic;
+import org.bukkit.craftbukkit.help.CommandAliasHelpTopic;
+import org.bukkit.help.HelpMap;
+import org.bukkit.help.HelpTopic;
+import org.bukkit.help.HelpTopicFactory;
 import org.jetbrains.annotations.NotNull;
 import vip.creatio.accessor.Reflection;
 import vip.creatio.accessor.Var;
 import vip.creatio.basic.util.NMS;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -33,22 +37,22 @@ public class BrigadierCommand extends BukkitCommand {
     private static final Var<CommandMap> COMMAND_MAP = Reflection.field(Command.class, "commandMap");
     public static final List<String> EMPTY = Collections.emptyList();
 
+    private final CommandRegister register;
     private final LiteralCommandNode<CommandListenerWrapper> command;
     private final Predicate<CommandSender> permissionTest;
-    private final CommandRegister register;
-    private final boolean showInHelpList;
+    private final HelpTopic helpTopic;
 
     private final FallbackAction action;
 
-    public BrigadierCommand(CommandRegister register,
-                            LiteralCommandNode<CommandListenerWrapper> command,
-                            String description,
-                            List<String> aliases,
-                            boolean showInHelpList) {
+    public BrigadierCommand(@NotNull CommandRegister register,
+                            @NotNull LiteralCommandNode<CommandListenerWrapper> command,
+                            @NotNull String description,
+                            @NotNull List<String> aliases,
+                            @Nullable HelpTopicFactory<BrigadierCommand> helpTopic) {
         super(command.getName(), description, command.getUsageText(), aliases);
         this.command = command;
         this.register = register;
-        this.showInHelpList = showInHelpList;
+        this.helpTopic = helpTopic == null ? null : helpTopic.createTopic(this);
         this.action = command instanceof ExCommandNode ? ((ExCommandNode) command).getFallback() : FallbackAction.DEFAULT;
         this.permissionTest = command instanceof ExCommandNode
                 ? ((ExCommandNode) command)::accessiblyTestSilent
@@ -57,7 +61,13 @@ public class BrigadierCommand extends BukkitCommand {
 
     // Called when CommandManager register the command
     protected void onRegister() {
-        if (showInHelpList) Bukkit.getServer().getHelpMap().addTopic(new GenericCommandHelpTopic(this));
+        if (helpTopic != null) {
+            HelpMap map = Bukkit.getServer().getHelpMap();
+            map.addTopic(helpTopic);
+            for (String alias : getAliases()) {
+                map.addTopic(new CommandAliasHelpTopic(alias, getName(), map));
+            }
+        }
     }
 
     // Since server's CommandDispatcher changes when server finished plugin loading, which is the time
@@ -88,7 +98,7 @@ public class BrigadierCommand extends BukkitCommand {
             getDispatcher().execute(parsed);
         } catch (CommandSyntaxException e) {
             // No message output request
-            if (e == ExCommandNode.NO_MESSAGE) return true;
+            if (e == FallbackAction.NO_MESSAGE) return true;
 
             // Invalid input processor
             List<ParsedCommandNode<CommandListenerWrapper>> nodes = parsed.getContext().getNodes();
@@ -163,7 +173,7 @@ public class BrigadierCommand extends BukkitCommand {
         return permissionTest;
     }
 
-    public boolean showInHelpList() {
-        return showInHelpList;
+    public HelpTopic getHelpTopic() {
+        return helpTopic;
     }
 }
